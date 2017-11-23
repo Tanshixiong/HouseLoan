@@ -1,0 +1,9 @@
+1503664494149	geckodriver	INFO	Listening on 127.0.0.1:55457
+1503664496162	mozprofile::profile	INFO	Using profile path C:\Users\ASUS\AppData\Local\Temp\rust_mozprofile.ABZSIJFuBXRS
+1503664496168	geckodriver::marionette	INFO	Starting browser C:\Program Files (x86)\Mozilla Firefox\firefox.exe
+1503664496175	geckodriver::marionette	INFO	Connecting to Marionette on localhost:55467
+1503664496553	Marionette	WARN	Deprecated preference marionette.defaultPrefs.enabled detected, please use marionette.enabled
+[GFX1]: Potential driver version mismatch ignored due to missing DLLs igd10umd32 v= and igd10iumd32.dll v=0.0.0.0
+1503664498147	Marionette	INFO	Listening on port 55467
+1503664498261	Marionette	WARN	TLS certificate errors will be ignored for this session
+1503664505010	Marionette	INFO	Ceased listening

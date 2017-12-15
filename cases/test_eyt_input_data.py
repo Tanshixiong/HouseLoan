@@ -9,7 +9,7 @@ import unittest
 
 from common import common
 from common.login import Login
-from common.model import getName, logout
+from common.custom import getName, logout
 
 
 class EYT(unittest.TestCase):
@@ -18,36 +18,38 @@ class EYT(unittest.TestCase):
 	def _init_params(self):
 		self.cust_info = {
 			'_cust_base_info': {
-				'product': u'E押通-2.0(一押)',  # 贷款产品
-				'apply_amount': 500000,  # 申请金额
-				'apply_period': 36,  # 贷款期数
-				'branch_manager_name': u"小明",
-				'branch_manager': "xn111",
-				'apply_module_team_group_name': u"A队",
-				'team_manager_name': u"小王",
-				'team_manager': "xn0001",
-				'sale_name': u"王刚",
-				'module_sale': "xn0002",
-				'module_month_income': 3000,
+				'productName': u'E押通-2.0(二押)',  # 贷款产品
+				'applyAmount': 200000,  # 申请金额
+				'applyPeriod': 36,  # 贷款期数
+				'branchManager': u"小明",
+				'branchManagerCode': "xn111",
+				'teamGroup': u"A队",
+				"teamGroupCode": "xn0001",
+				'teamManager': u"小王",
+				'teamManagerCode': "xn0001",
+				'sale': u"王刚",
+				'saleCode': "xn0002",
+				'monthIncome': 3000,
 				'checkApprove': u"同意",
 				},
 			'_borrow_info': {
-				'name': getName(),
-				'id_num': '360101199101011054',
+				'custName': getName(),
+				'idNum': '360101199101011054',
 				'phone': "13564789215",
 				'address': u"湖南长沙",
-				'company': u'小牛普惠管理有限公司',
-				'job': u'工程师',
-				'entry_date': u'2011-02-03',  # 入职日期
-				'work_year': 5,  # 工作年限
-				'monthly_incoming': 15000  # 月均收入
+				'companyName': u'小牛普惠管理有限公司',
+				'postName': u'工程师',
+				'workDate': u'2011-02-03',  # 入职日期
+				'workYear': 5,  # 工作年限
+				'monthIncoming': 15000  # 月均收入
 				},
 			'applyCode': '',
 			'next_user_id': '',
 			}
+		self.loan_amount = 200000  # 拆分金额
 		
 		self.property_info = {
-			'propertyOwner': self.cust_info['_borrow_info']['name'],  # 产权人
+			'propertyOwner': self.cust_info['_borrow_info']['custName'],  # 产权人
 			'propertyNo': 'EYT2017230',  # 房产证号
 			'propertyStatus': True,  # 是否涉贷物业
 			'propertyAge': 10,  # 房龄
@@ -122,7 +124,7 @@ class EYT(unittest.TestCase):
 		'''申请件查询'''
 		
 		self.test_eyt_04_applydata()
-		name = self.cust_info['_borrow_info']['name']
+		name = self.cust_info['_borrow_info']['custName']
 		applycode = common.get_applycode(self.page, name)
 		if applycode:
 			self.cust_info['applyCode'] = applycode
@@ -159,14 +161,11 @@ class EYT(unittest.TestCase):
 		res = self.test_eyt_07_process_monitor()
 		print "userId:" + res[0]
 		
-		# 当前用户退出系统
-		self.page.driver.close()
-		
 		# 下一个处理人重新登录
 		page = Login(res[0])
 		
 		# 审批审核
-		common.branch_supervisor_approval(page, res[1])
+		common.approval_to_review(page, res[1], u'分公司主管同意审批')
 		
 		# 查看下一步处理人
 		next_id = common.process_monitor(page, self.cust_info['applyCode'])
@@ -195,7 +194,7 @@ class EYT(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.branch_manager_approval(page, self.cust_info['applyCode'])
+		common.approval_to_review(page, self.cust_info['applyCode'], u'分公司经理同意审批')
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.cust_info['applyCode'])
@@ -217,7 +216,7 @@ class EYT(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.regional_prereview(page, self.cust_info['applyCode'])
+		common.approval_to_review(page, self.cust_info['applyCode'], u'区域预复核通过')
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.cust_info['applyCode'])
@@ -228,6 +227,87 @@ class EYT(unittest.TestCase):
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
+	
+	def test_eyt_11_manager_approval(self):
+		'''审批经理审批'''
+		
+		# 获取审批经理ID
+		next_id = self.test_eyt_10_regional_prereview()
+		
+		# 下一个处理人重新登录
+		page = Login(next_id)
+		
+		# 审批审核
+		common.approval_to_review(page, self.cust_info['applyCode'], u'审批经理审批')
+		
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.cust_info['applyCode'])
+		if not res:
+			return False
+		else:
+			self.cust_info['next_user_id'] = res
+			# 当前用户退出系统
+			self.page.driver.quit()
+			return res
+	
+	def test_12_contract_signing(self):
+		'''签约'''
+		
+		i_frame = 'bTabs_tab_house_commonIndex_todoList'
+		# 收款银行信息
+		rec_bank_info = dict(
+				recBankNum='6210302082441017886',
+				recPhone='13686467482',
+				recBankProvince=u'湖南省',
+				recBankDistrict=u'长沙',
+				recBank=u'中国农业银行',
+				recBankBranch=u'北京支行',
+				)
+		
+		# 扣款银行信息
+		rep_bank_info = dict(
+				rep_name=u'习近平',
+				rep_id_num='420101198201013526',
+				rep_bank_code='6210302082441017886',
+				rep_phone='13686467482',
+				provice=u'湖南省',
+				district=u'长沙',
+				rep_bank_name=u'中国银行',
+				rep_bank_branch_name=u'北京支行',
+				)
+		
+		# 获取合同打印专员ID
+		next_id = self.test_eyt_11_manager_approval()
+		
+		# 下一个处理人重新登录
+		page = Login(next_id)
+		
+		# 签约
+		common.make_signing(page, i_frame, self.cust_info['applyCode'], rec_bank_info)
+		# common.make_signing(self.page, i_frame, 'GZ20171207E15', rec_bank_info)
+		
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.cust_info['applyCode'])
+		if not res:
+			return False
+		else:
+			self.cust_info['next_user_id'] = res
+			# 当前用户退出系统
+			self.page.driver.quit()
+			return res
+	
+	def test_13_compliance_audit(self):
+		'''合规审查'''
+		
+		i_frame = 'bTabs_tab_house_commonIndex_todoList'
+		# 获取下一步合同登录ID
+		next_id = self.test_12_contract_signing()
+		
+		# 下一个处理人重新登录
+		page = Login(next_id)
+		
+		# 合规审查
+		common.compliance_audit(page, self.cust_info['applyCode'])
 
 
 if __name__ == '__main__':

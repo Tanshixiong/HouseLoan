@@ -4,6 +4,7 @@
     登录功能实现
 '''
 import time
+import json
 
 from selenium.common import exceptions as EC
 
@@ -15,9 +16,14 @@ class Login(object):
 		登录页面
 	'''
 	
-	def __init__(self, username='xn018170'):
+	def __init__(self, username='xn018991', env="SIT"):
+		'''
 		
-		self.user_info = self.init_params()
+		:param username: 登录用户名
+		:param env: 环境选择 SIT/UAT
+		'''
+		
+		self.user_info = self.init_params(env, 1)
 		self.url = self.user_info['url']
 		self.driver = common.browser()
 		self.driver.maximize_window()
@@ -71,6 +77,10 @@ class Login(object):
 		return True
 	
 	def close_alert_and_get_its_text(self):
+		'''
+			关闭弹框
+		:return:
+		'''
 		try:
 			alert = self.driver.switch_to_alert()
 			alert_text = alert.text
@@ -83,7 +93,17 @@ class Login(object):
 			self.accept_next_alert = True
 	
 	# 登录参数
-	def init_params(self):
+	def init_params(self, env="SIT", n=0):
+		'''
+		
+		:param env: SIT 或者UAT 环境
+		:param n: 分公司，0： 广州分公司； 1： 长沙分公司
+		:return:
+		'''
+		
+		with open("config/env.json", 'r') as f:
+			data = json.load(f)
+			company = data[env]["company"][n]  # 切换分公司
 		
 		user_info = {
 			'locate': {
@@ -92,11 +112,10 @@ class Login(object):
 				'loc_button': 'input.login-btn',
 				},  # 元素位置
 			'auth': {
-				'username': None,
-				'password': '111111',
+				'username': company["Commissioner"]["user"],
+				'password': company["Commissioner"]["password"],
 				},  # 用户名/密码
-			'url': "http://10.15.14.48:8098/houseLoan/login",  # 登录URL
-			# 'url': "http://10.18.4.57:8080/houseLoan/login",  # 登录URL
+			'url': data[env]["url"],  # 登录URL
 			}
 		return user_info
 	

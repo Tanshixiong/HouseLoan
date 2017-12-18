@@ -1,11 +1,18 @@
 # coding:utf-8
-
 '''
-    登录功能实现
+	Date： 2017-12-16
+	Author： Tansx
+	
+	功能介绍
+	*****************************************
+	1. 登录功能实现
+	2. 实现SIT/UAT环境切换
+	3. 实现分公司切换
+	*****************************************
 '''
 import time
 import json
-
+import os
 from selenium.common import exceptions as EC
 
 import common
@@ -16,14 +23,25 @@ class Login(object):
 		登录页面
 	'''
 	
-	def __init__(self, username='xn018991', env="SIT"):
+	def __init__(self, username='xn018170', env="SIT"):
 		'''
 		
 		:param username: 登录用户名
 		:param env: 环境选择 SIT/UAT
 		'''
 		
-		self.user_info = self.init_params(env, 1)
+		self.conf_path = "E:/HouseLoanAuto/config/env.json"
+		with open(self.conf_path, 'r') as f:
+			self.data = json.load(f)
+			self.number = self.data["number"]
+			self.env = self.data["enviroment"]
+		# 环境SIT/UAT
+		if self.data["enviroment"]:
+			self.env = self.data["enviroment"]
+		else:
+			self.env = env
+		
+		self.user_info = self.init_params(self.env, self.number)  # 分公司切换
 		self.url = self.user_info['url']
 		self.driver = common.browser()
 		self.driver.maximize_window()
@@ -101,7 +119,7 @@ class Login(object):
 		:return:
 		'''
 		
-		with open("config/env.json", 'r') as f:
+		with open(self.conf_path, 'r') as f:
 			data = json.load(f)
 			company = data[env]["company"][n]  # 切换分公司
 		

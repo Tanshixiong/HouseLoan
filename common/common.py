@@ -11,6 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from config.locator import loc_cust_info, loc_borrower
 from selenium.common import exceptions as EC
+from custom import getName
 
 
 def browser(arg="chrome"):
@@ -76,8 +77,9 @@ def input_customer_borrow_info(page, data):
 	:param data 传入的数据
 	:return:
 	'''
+	custName = getName()
 	page._click_control(page.driver, "xpath", ".//*[@id='tb']/a[1]/span[2]")
-	page.driver.find_element_by_css_selector(loc_borrower['jkrxm']).send_keys(unicode(data['custName']))  # 借款人姓名
+	page.driver.find_element_by_css_selector(loc_borrower['jkrxm']).send_keys(unicode(custName))  # 借款人姓名
 	time.sleep(1)
 	page._send_data(page.driver, "xpath", loc_borrower['sfzhm'], data["idNum"])  # 身份证号码
 	# 受教育程度

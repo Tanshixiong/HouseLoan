@@ -3,6 +3,8 @@
 import logging
 from selenium import webdriver
 import random
+import json
+import os
 
 
 def log_to():
@@ -19,6 +21,10 @@ def log_to():
 
 
 def getName():
+	'''
+		获取随机姓名
+	:return: name
+	'''
 	familyNames = [
 		"赵", "钱", "孙", "李", "周", "吴", "郑", "王", "冯", "陈",
 		"褚", "卫", "蒋", "沈", "韩", "杨", "朱", "秦", "尤", "许",
@@ -32,7 +38,7 @@ def getName():
 		"元", "卜", "顾", "孟", "平", "黄", "和", "穆", "萧", "尹"
 		]
 	
-	LastNames = [
+	lastNames = [
 		"子璇", "淼", "国栋", "夫子", "瑞堂", "甜", "敏", "尚", "国贤", "贺祥", "晨涛",
 		"昊轩", "易轩", "益辰", "益帆", "益冉", "瑾春", "瑾昆", "春齐", "杨", "文昊",
 		"东东", "雄霖", "浩晨", "熙涵", "溶溶", "冰枫", "欣欣", "宜豪", "欣慧", "建政",
@@ -48,7 +54,7 @@ def getName():
 	i = random.randint(0, 99)
 	f_name = familyNames[i]
 	j = random.randint(0, 99)
-	l_name = LastNames[j]
+	l_name = lastNames[j]
 	name = f_name + l_name
 	return name
 
@@ -57,12 +63,50 @@ def logout(driver):
 	driver.find_element_by_xpath("/html/body/header/div[2]").click()
 
 
-if __name__ == '__main__':
-	dr = webdriver.Chrome()
-	dr.get("http://www.baidu.com")
-	dr.quit()
+def enviroment_change(filename, number=0, enviroment="SIT"):
+	'''
+		环境切换
+	:param enviroment: SIT/UAT
+	:param path:    "config/data_cwd.json"
+	:param number:  "0" 广州分公司; "1" 长沙分公司
+	:return:    录入的数据， 所选分公司
+	'''
 	
-	logger = log_to()
-	logger.debug('This is debug message')
-	logger.info('This is info message')
-	logger.warning('This is warning message')
+	path = "E:\HouseLoanAuto\config\\"
+	# 导入数据
+	with open(path + filename, 'r') as f:
+		data = json.load(f)
+		print(data['applyVo']['productName'])
+		# print(data['custInfoVo'][0]['custName'])
+	
+	# 环境变量, 切换分公司
+	with open(path + "/env.json", 'r') as f1:
+		env = json.load(f1)
+		company = env[enviroment]["company"][number]
+	
+	return data, company
+
+
+def hello():
+	pwd = os.getcwdu()
+	print pwd
+	father_path = os.path.abspath(os.path.dirname(pwd) + os.path.sep + ".")
+	with open(father_path + "/config/env.json", 'r') as f1:
+		env = json.load(f1)
+		print env
+	
+	dir = os.path.dirname(os.getcwd())
+	print(dir + "/config/env.json")
+
+
+if __name__ == '__main__':
+	# dr = webdriver.Chrome()
+	# dr.get("http://www.baidu.com")
+	# dr.quit()
+	#
+	# logger = log_to()
+	# logger.debug('This is debug message')
+	# logger.info('This is info message')
+	# logger.warning('This is warning message')
+	
+	hello()

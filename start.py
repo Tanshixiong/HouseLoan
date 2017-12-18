@@ -21,23 +21,23 @@ if __name__ == "__main__":
 		# local_dir = os.getcwd()
 		local_dir = "E:\HouseLoanAuto"
 		print("local_dir: %s " % local_dir)
-		path = local_dir + "\log\\" + now + "-result.html"
+		path = local_dir + "\\report\\" + now + "-result.html"
 		print("path:", path)
 		return local_dir, path
-
-
+	
+	
 	# 按照一定格式获取当前时间
 	now = time.strftime("%Y-%m-%d %H_%M_%S")
 	PT = set_reporter_path()
 	print("path:", PT)
 	fp = open(PT[1], 'wb')
-
+	
 	suite = unittest.TestSuite()
 	# 构造测试套件
-	#过桥通产品
+	# 过桥通产品
 	suite.addTest(test_gqt_input_data.GQT('test_gqt_01'))
-
-	#E押通产品
+	
+	# E押通产品
 	suite.addTest(test_eyt_input_data.EYT('test_eyt_01_base_info'))
 	suite.addTest(test_eyt_input_data.EYT('test_ety_02_borrowr_info'))
 	suite.addTest(test_eyt_input_data.EYT('test_eyt_03_Property_info'))
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	suite.addTest(test_eyt_input_data.EYT('test_13_compliance_audit'))
 	suite.addTest(test_eyt_input_data.EYT('test_quit_system'))
 	
-	#循环贷产品
+	# 循环贷产品
 	suite.addTest(test_xhd_input_data.XHD('test_xhd_01_base_info'))
 	suite.addTest(test_xhd_input_data.XHD('test_xhd_02_borrowr_info'))
 	suite.addTest(test_xhd_input_data.XHD('test_xhd_03_Property_info'))
@@ -79,12 +79,15 @@ if __name__ == "__main__":
 	suite.addTest(test_suite_cwd.CWD('test_cwd_14_authority_card_member_transact'))
 	suite.addTest(test_suite_cwd.CWD('test_cwd_15_warrant_apply'))
 	suite.addTest(test_suite_cwd.CWD('test_cwd_16_finace_transact'))
-
-
+	suite.addTest(test_suite_cwd.CWD('test_cwd_17_finace_approve_branch_manager'))
+	suite.addTest(test_suite_cwd.CWD('test_cwd_18_finace_approve_risk_control_manager'))
+	suite.addTest(test_suite_cwd.CWD('test_cwd_19_finace_approve_financial_accounting'))
+	suite.addTest(test_suite_cwd.CWD('test_cwd_20_finace_approve_financial_manager'))
+	
 	# 定义测试报告
 	runner = HTMLTestRunner(stream=fp, title='测试报告', description='用例执行情况:')
 	# import pdb
 	# pdb.set_trace()
 	runner.run(suite)
-
+	
 	fp.close()  # 关闭测试报告

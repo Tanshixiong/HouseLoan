@@ -18,7 +18,7 @@ class CWD(unittest.TestCase):
 		local_dir = os.getcwd()
 		print("local_dir: %s " % local_dir)
 		# 环境初始化
-		self._enviroment_change(1)
+		self._enviroment_change(0)
 	
 	def _enviroment_change(self, i):
 		'''
@@ -29,8 +29,7 @@ class CWD(unittest.TestCase):
 		# 导入数据
 		with open("config/data_cwd.json", 'r') as f:
 			self.data = json.load(f)
-			print unicode(self.data['applyVo']['productName'])
-			print unicode(self.data['custInfoVo'][0]['custName'])
+			print(self.data['applyVo']['productName'])
 		
 		# 环境变量, 切换分公司
 		with open("config/env.json", 'r') as f1:

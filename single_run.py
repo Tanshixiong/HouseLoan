@@ -10,6 +10,7 @@ from cases import test_gqt_input_data
 from cases import test_eyt_input_data
 from cases import test_xhd_input_data
 from cases import test_suite_cwd
+from cases.IntoCases import test_into_case
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -22,10 +23,10 @@ if __name__ == "__main__":
 	# 	local_dir = os.getcwd()
 	# 	# local_dir = "E:\HouseLoanAuto"
 	# 	print("local_dir: %s " % local_dir)
-	# 	path = local_dir + "\log\\" + now + "-result.html"
+	# 	path = local_dir + "\\report\\" + now + "-result.html"
 	# 	print("path:", path)
 	# 	return local_dir, path
-	#
+	
 	
 	# 按照一定格式获取当前时间
 	# now = time.strftime("%Y-%m-%d %H_%M_%S")
@@ -35,15 +36,17 @@ if __name__ == "__main__":
 	
 	suite = unittest.TestSuite()
 	# 构造测试套件
-	# suite.addTest(test_eyt_input_data.EYT('test_eyt_09_branch_manager_approval'))
+	# suite.addTest(test_eyt_input_data.EYT('test_eyt_01_base_info'))
 	# suite.addTest(test_eyt_input_data.EYT('test_13_compliance_audit'))
 	# suite.addTest(test_eyt_input_data.EYT('test_eyt_01_base_info'))
 	# suite.addTest(test_xhd_input_data.XHD('test_xhd_06_show_task'))
 	
-	suite.addTest(test_suite_cwd.CWD('test_cwd_18_finace_approve_risk_control_manager'))
+	# suite.addTest(test_suite_cwd.CWD('test_cwd_20_finace_approve_financial_manager'))
+	
+	suite.addTest(test_into_case.IntoCase('test_01_one_borrower'))
 	runner = unittest.TextTestRunner()
 	
 	# 定义测试报告
 	# runner = HTMLTestRunner(stream=fp, title='测试报告', description='用例执行情况:')
 	runner.run(suite)
-	# fp.close()  # 关闭测试报告
+# fp.close()  # 关闭测试报告

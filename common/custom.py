@@ -1,6 +1,7 @@
 # coding:utf-8
 
 import logging
+import inspect
 from selenium import webdriver
 import random
 import json
@@ -77,7 +78,7 @@ def enviroment_change(filename, number=0, enviroment="SIT"):
 	with open(path + filename, 'r') as f:
 		data = json.load(f)
 		print(data['applyVo']['productName'])
-		# print(data['custInfoVo'][0]['custName'])
+	# print(data['custInfoVo'][0]['custName'])
 	
 	# 环境变量, 切换分公司
 	with open(path + "/env.json", 'r') as f1:
@@ -85,6 +86,15 @@ def enviroment_change(filename, number=0, enviroment="SIT"):
 		company = env[enviroment]["company"][number]
 	
 	return data, company
+
+
+def get_current_function_name():
+	'''
+		获取当前方法的名字
+	:return:
+	'''
+	return inspect.stack()[1][3]
+
 
 
 def hello():

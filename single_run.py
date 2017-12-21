@@ -43,7 +43,7 @@ if __name__ == "__main__":
 	
 	# suite.addTest(test_suite_cwd.CWD('test_cwd_20_finace_approve_financial_manager'))
 	
-	suite.addTest(test_into_case.IntoCase('test_01_one_borrower'))
+	suite.addTest(test_into_case.IntoCase('test_03_two_borrower'))
 	runner = unittest.TextTestRunner()
 	
 	# 定义测试报告

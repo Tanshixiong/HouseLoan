@@ -113,12 +113,13 @@ def input_customer_borrow_info(page, data):
 	page._send_data(page.driver, "id", loc_borrower['gzyx'], data['workYear'])  # 工作年限
 	page._send_data(page.driver, "id", loc_borrower['yjsr'], data['monthIncoming'])  # 月均收入
 	page.driver.find_element_by_css_selector("input[type=\"checkbox\"]").click()  # 是否有社保 Todo
+	page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
 	# 临时保存
 	save(page)
 
 
 # 输入多个借款人（待完善）
-def input_more_borrower(page, data, num):
+def input_more_borrower(page):
 	'''
 		客户基本信息 - 借款人/共贷人/担保人信息
 	:param page 页面
@@ -126,55 +127,55 @@ def input_more_borrower(page, data, num):
 	:return:
 	'''
 	
-	# self._click_control(page.driver, "xpath", "//div[@id='tb']/a/span[2]")
-	page._click_control(page.driver, "xpath", ".//*[@id='tb']/a[1]/span[2]")
+	page.driver.find_element_by_xpath('//*[@id="tb"]/a[1]/span[2]').click()
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[4]/div/table/tbody/tr/td/input').send_keys(u"小黑")
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[5]/div/table/tbody/tr/td/input').send_keys("360101199101011054")
+	time.sleep(2)
+	page.driver.find_element_by_id('_easyui_textbox_input14').click()
+	page.driver.find_element_by_id('_easyui_combobox_i8_2').click()
 	
-	page.driver.find_element_by_css_selector(loc_borrower['jkrxm']).send_keys(data['name'])  # 借款人姓名
-	time.sleep(1)
+	page.driver.find_element_by_id('_easyui_textbox_input15').click()
+	page.driver.find_element_by_id('_easyui_combobox_i9_0').click()
 	
-	def action():
-		# page.driver.find_element_by_css_selector(loc_borrower['jkrxm']).send_keys(data['name'])  # 借款人姓名
-		# time.sleep(1)
-		page._send_data(page.driver, "xpath", loc_borrower['sfzhm'], data["id_num"])  # 身份证号码
-		
-		# 受教育程度
-		page._click_control(page.driver, "id", loc_borrower['sjycd']['locate'])
-		page._click_control(page.driver, "id", loc_borrower['sjycd']['value'])
-		
-		page._click_control(page.driver, "id", loc_borrower['hyzk']['locate'])  # 婚姻状况
-		page._click_control(page.driver, "id", loc_borrower['hyzk']['value'])
-		
-		page._send_data(page.driver, "id", loc_borrower['jtdzxx'], data['address'])  # 家庭地址信息
-		page._send_data(page.driver, "xpath", loc_borrower['xxfs'], data["phone"])  # 联系方式
-		page._send_data(page.driver, "xpath", loc_borrower['dwmc'], data["company"])  # 单位名称
-		
-		# 公司规模
-		page.driver.find_element_by_css_selector(loc_borrower['gsgm']['a']).click()
-		page._click_control(page.driver, "xpath", loc_borrower['gsgm']['b'])
-		page._click_control(page.driver, "id", loc_borrower['gsgm']['c'])
-		
-		# 所属行业
-		page._click_control(page.driver, "id", loc_borrower['sshy']['locate'])
-		page._click_control(page.driver, "id", loc_borrower['sshy']['value'])
-		
-		page._send_data(page.driver, "id", loc_borrower['zw'], data["job"])  # 职位
-		page._send_data(page.driver, "xpath", loc_borrower['rzrq'], data["entry_date"])  # 入职日期
-		page._send_data(page.driver, "id", loc_borrower['gzyx'], data['work_year'])  # 工作年限
-		page._send_data(page.driver, "id", loc_borrower['yjsr'], data['monthly_incoming'])  # 月均收入
-		page.driver.find_element_by_css_selector("input[type=\"checkbox\"]").click()  # 是否有社保 Todo
-		# 临时保存
-		page.driver.find_element_by_css_selector(
-				"#apply_module_apply_save > span.l-btn-left > span.l-btn-text > span.a_text").click()
-		time.sleep(4)
-		page.driver.find_element_by_xpath("html/body/div[2]/div[3]/a").click()
-		time.sleep(1)
+	page.driver.find_element_by_id('_easyui_textbox_input16').send_keys("xxxaaaa")
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[10]/div/table/tbody/tr/td/input').send_keys("13912341923")
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[11]/div/table/tbody/tr/td/input').send_keys("yyyyyy")
+	page.driver.find_element_by_id('_easyui_textbox_input17').click()
+	page.driver.find_element_by_id('_easyui_combobox_i10_3').click()
+	page.driver.find_element_by_id('_easyui_textbox_input18').click()
+	page.driver.find_element_by_id('_easyui_combobox_i11_2').click()
 	
-	if num == 1:
-		action()
-	elif num == 2:
-		action()
-	else:
-		print "more than 2 borrower want to be input!"
+	page.driver.find_element_by_id('_easyui_textbox_input20').send_keys("bbbbb")
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[16]/div/table/tbody/tr/td/input').send_keys("2017-12-19")
+	page.driver.find_element_by_id('_easyui_textbox_input21').send_keys(12)
+	page.driver.find_element_by_id('_easyui_textbox_input22').send_keys(20000)
+	
+	page.driver.find_element_by_xpath(
+			'//*[@id="datagrid-row-r1-2-1"]/td[19]/div/table/tbody/tr/td/input').click()
+	
+	# 确认
+	page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
+	
+	# 关联关系信息
+	page.driver.find_element_by_xpath('//*[@id="tbs"]/a[1]').click()
+	page.driver.find_element_by_id('_easyui_textbox_input23').click()
+	page.driver.find_element_by_id('_easyui_combobox_i12_0').click()
+	
+	page.driver.find_element_by_id('_easyui_textbox_input24').click()
+	page.driver.find_element_by_id('_easyui_combobox_i13_1').click()
+	
+	page.driver.find_element_by_id('_easyui_textbox_input25').click()
+	page.driver.find_element_by_id('_easyui_combobox_i14_0').click()
+	page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
+	
+	# 保存
+	page.driver.find_element_by_id('apply_module_apply_save').click()
+	page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
 
 
 # 业务基本信息- 输入物业信息(Basic business information-Property information)

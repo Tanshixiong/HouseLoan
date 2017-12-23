@@ -17,8 +17,28 @@ class CWD(unittest.TestCase):
 		self.next_user_id = ""
 		local_dir = os.getcwd()
 		print("local_dir: %s " % local_dir)
+		
 		# 环境初始化
-		self._enviroment_change(0)
+		# self._enviroment_change(0)
+		try:
+			import config
+			rootdir = config.__path__[0]
+			config_env = os.path.join(rootdir, 'env.json')
+			print("config_env:" + config_env)
+			with open(config_env, 'r') as f:
+				self.da = json.load(f)
+				self.number = self.da["number"]
+				self.env = self.da["enviroment"]
+			
+			filename = "data_cwd.json"
+			data, company = custom.enviroment_change(filename, self.number, self.env)
+			# 录入的源数据
+			self.data = data
+			# 分公司选择
+			self.company = company
+		except Exception as e:
+			print('load config error:', str(e))
+			raise
 	
 	def _enviroment_change(self, i):
 		'''
@@ -268,7 +288,7 @@ class CWD(unittest.TestCase):
 	def test_cwd_14_authority_card_member_transact(self):
 		'''权证办理'''
 		
-		print  u"申请编号:" + self.applyCode
+		# print  u"申请编号:" + self.applyCode
 		# 合规审查
 		self.test_cwd_13_compliance_audit()
 		# 权证员登录

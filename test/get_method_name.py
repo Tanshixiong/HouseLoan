@@ -16,7 +16,6 @@ class MyClass:
 def atest():
 	print sys._getframe().f_code.co_name
 	b = sys._getframe()
-	
 
 
 if __name__ == "__main__":

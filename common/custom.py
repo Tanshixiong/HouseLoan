@@ -73,19 +73,25 @@ def enviroment_change(filename, number=0, enviroment="SIT"):
 	:return:    录入的数据， 所选分公司
 	'''
 	
-	path = "E:\HouseLoanAuto\config\\"
-	# 导入数据
-	with open(path + filename, 'r') as f:
-		data = json.load(f)
-		print(data['applyVo']['productName'])
-	# print(data['custInfoVo'][0]['custName'])
-	
-	# 环境变量, 切换分公司
-	with open(path + "/env.json", 'r') as f1:
-		env = json.load(f1)
-		company = env[enviroment]["company"][number]
-	
-	return data, company
+	try:
+		import config
+		rd = config.__path__[0]
+		data_config = os.path.join(rd, filename)
+		env_config = os.path.join(rd, 'env.json')
+		print("data_config:" + data_config)
+		
+		with open(data_config, 'r') as fd:
+			data = json.load(fd)
+		
+		# 环境变量, 切换分公司
+		with open(env_config, 'r') as f1:
+			env = json.load(f1)
+			company = env[enviroment]["company"][number]
+		
+		return data, company
+	except Exception as e:
+		print("config error:" + str(e))
+		raise
 
 
 def get_current_function_name():
@@ -94,7 +100,6 @@ def get_current_function_name():
 	:return:
 	'''
 	return inspect.stack()[1][3]
-
 
 
 def hello():

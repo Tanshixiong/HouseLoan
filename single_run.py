@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	# suite.addTest(test_eyt_input_data.EYT('test_eyt_01_base_info'))
 	# suite.addTest(test_xhd_input_data.XHD('test_xhd_06_show_task'))
 	
-	# suite.addTest(test_suite_cwd.CWD('test_cwd_20_finace_approve_financial_manager'))
+	# suite.addTest(test_suite_cwd.CWD('test_cwd_21_funds_raise'))
 	
 	suite.addTest(test_into_case.IntoCase('test_03_two_borrower'))
 	runner = unittest.TextTestRunner()

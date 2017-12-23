@@ -15,19 +15,27 @@ sys.setdefaultencoding("utf-8")
 
 class IntoCase(unittest.TestCase, Login):
 	def setUp(self):
-		with open("E:/HouseLoanAuto/config/env.json", 'r') as f:
-			self.da = json.load(f)
-			self.number = self.da["number"]
-			self.env = self.da["enviroment"]
-		
-		filename = "data_cwd.json"
-		data, company = custom.enviroment_change(filename, self.number, self.env)
-		# self.page = Login.__init__(self)
-		self.page = Login()
-		# 录入的源数据
-		self.data = data
-		# 分公司选择
-		self.company = company
+		try:
+			import config
+			rootdir = config.__path__[0]
+			config_env = os.path.join(rootdir, 'env.json')
+			print("config_env:" + config_env)
+			with open(config_env, 'r') as f:
+				self.da = json.load(f)
+				self.number = self.da["number"]
+				self.env = self.da["enviroment"]
+			
+			filename = "data_cwd.json"
+			data, company = custom.enviroment_change(filename, self.number, self.env)
+			# self.page = Login.__init__(self)
+			self.page = Login()
+			# 录入的源数据
+			self.data = data
+			# 分公司选择
+			self.company = company
+		except Exception as e:
+			print('load config error:', str(e))
+			raise
 	
 	def tearDown(self):
 		pass

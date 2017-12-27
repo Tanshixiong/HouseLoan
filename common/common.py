@@ -5,13 +5,13 @@
 '''
 
 import time
+import logging
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
-
 from config.locator import loc_cust_info, loc_borrower
 from selenium.common import exceptions as EC
-from custom import getName
+from custom import getName, Log
 
 
 def browser(arg="chrome"):
@@ -27,7 +27,7 @@ def browser(arg="chrome"):
 	elif arg == "firefox":
 		driver = webdriver.Firefox()
 	else:
-		raise "Can't support the kind of borrower!"
+		raise ("Can't support the kind of borrower!")
 	
 	return driver
 
@@ -68,6 +68,7 @@ def input_customer_base_info(page, data):
 	page._send_data(page.driver, "name", loc_cust_info['zyyjbz_name'], data["checkApprove"])  # 专员意见备注
 	# 保存
 	save(page)
+	return True
 
 
 def input_customer_borrow_info(page, data):
@@ -78,44 +79,50 @@ def input_customer_borrow_info(page, data):
 	:return:
 	'''
 	custName = getName()
-	page._click_control(page.driver, "xpath", ".//*[@id='tb']/a[1]/span[2]")
-	page.driver.find_element_by_css_selector(loc_borrower['jkrxm']).send_keys(unicode(custName))  # 借款人姓名
-	time.sleep(1)
-	page._send_data(page.driver, "xpath", loc_borrower['sfzhm'], data["idNum"])  # 身份证号码
-	# 受教育程度
-	page._click_control(page.driver, "id", loc_borrower['sjycd']['locate'])
-	page._click_control(page.driver, "id", loc_borrower['sjycd']['value'])
-	
-	page._click_control(page.driver, "id", loc_borrower['hyzk']['locate'])  # 婚姻状况
-	time.sleep(1)
-	page._click_control(page.driver, "id", loc_borrower['hyzk']['value'])
-	
-	page._send_data(page.driver, "id", loc_borrower['jtdzxx'], data['address'])  # 家庭地址信息
-	page._send_data(page.driver, "xpath", loc_borrower['xxfs'], data["phone"])  # 联系方式
-	page._send_data(page.driver, "xpath", loc_borrower['dwmc'], data["companyName"])  # 单位名称
-	
-	# 公司规模
-	# page.driver.find_element_by_css_selector(loc_borrower['gsgm']['a']).click()
-	# page.driver.find_element_by_xpath(loc_borrower['gsgm']['a']).click()
-	# page._click_control(page.driver, "xpath", loc_borrower['gsgm']['b'])
-	# page._click_control(page.driver, "xpath", loc_borrower['gsgm']['c'])
-	
-	# 此处用这个方法
-	page._click_control(page.driver, "id", loc_borrower['gsgm']['locate'])
-	page._click_control(page.driver, "id", loc_borrower['gsgm']['value'])
-	
-	# 所属行业
-	page._click_control(page.driver, "id", loc_borrower['sshy']['locate'])
-	page._click_control(page.driver, "id", loc_borrower['sshy']['value'])
-	
-	page._send_data(page.driver, "id", loc_borrower['zw'], data["postName"])  # 职位
-	page._send_data(page.driver, "xpath", loc_borrower['rzrq'], data["workDate"])  # 入职日期
-	page._send_data(page.driver, "id", loc_borrower['gzyx'], data['workYear'])  # 工作年限
-	page._send_data(page.driver, "id", loc_borrower['yjsr'], data['monthIncoming'])  # 月均收入
-	page.driver.find_element_by_css_selector("input[type=\"checkbox\"]").click()  # 是否有社保 Todo
-	page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
-	# 临时保存
-	save(page)
+	try:
+		page._click_control(page.driver, "xpath", ".//*[@id='tb']/a[1]/span[2]")
+		# Update  2017-12-27
+		# 姓名元素变更，身份证号码变更
+		page.driver.find_element_by_xpath(loc_borrower['jkrxm']).send_keys(unicode(custName)) # 借款人姓名
+		time.sleep(1)
+		page._send_data(page.driver, "xpath", loc_borrower['sfzhm'], data["idNum"])  # 身份证号码
+		# 受教育程度
+		page._click_control(page.driver, "id", loc_borrower['sjycd']['locate'])
+		page._click_control(page.driver, "id", loc_borrower['sjycd']['value'])
+		
+		page._click_control(page.driver, "id", loc_borrower['hyzk']['locate'])  # 婚姻状况
+		time.sleep(1)
+		page._click_control(page.driver, "id", loc_borrower['hyzk']['value'])
+		
+		page._send_data(page.driver, "id", loc_borrower['jtdzxx'], data['address'])  # 家庭地址信息
+		page._send_data(page.driver, "xpath", loc_borrower['xxfs'], data["phone"])  # 联系方式
+		page._send_data(page.driver, "xpath", loc_borrower['dwmc'], data["companyName"])  # 单位名称
+		
+		# 公司规模
+		# page.driver.find_element_by_css_selector(loc_borrower['gsgm']['a']).click()
+		# page.driver.find_element_by_xpath(loc_borrower['gsgm']['a']).click()
+		# page._click_control(page.driver, "xpath", loc_borrower['gsgm']['b'])
+		# page._click_control(page.driver, "xpath", loc_borrower['gsgm']['c'])
+		
+		# 此处用这个方法
+		page._click_control(page.driver, "id", loc_borrower['gsgm']['locate'])
+		page._click_control(page.driver, "id", loc_borrower['gsgm']['value'])
+		
+		# 所属行业
+		page._click_control(page.driver, "id", loc_borrower['sshy']['locate'])
+		page._click_control(page.driver, "id", loc_borrower['sshy']['value'])
+		
+		page._send_data(page.driver, "id", loc_borrower['zw'], data["postName"])  # 职位
+		page._send_data(page.driver, "xpath", loc_borrower['rzrq'], data["workDate"])  # 入职日期
+		page._send_data(page.driver, "id", loc_borrower['gzyx'], data['workYear'])  # 工作年限
+		page._send_data(page.driver, "id", loc_borrower['yjsr'], data['monthIncoming'])  # 月均收入
+		page.driver.find_element_by_css_selector("input[type=\"checkbox\"]").click()  # 是否有社保 Todo
+		page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
+		# 临时保存
+		save(page)
+	except EC.NoSuchElementException as e:
+		Log().error(e)
+		raise
 
 
 # 输入多个借款人（待完善）
@@ -483,7 +490,7 @@ def process_monitor(page, condition, stage=0):
 	time.sleep(1)
 	# 流程监控
 	page.driver.find_element_by_name("/house/commonIndex/processMonitor").click()
-	time.sleep(1)
+	time.sleep(2)
 	#  切换frame
 	page.driver.switch_to.frame("bTabs_tab_house_commonIndex_processMonitor")
 	time.sleep(1)
@@ -612,6 +619,7 @@ def approval_to_review(page, condition, remark):
 		page.driver.find_element_by_xpath("//*[@id='apply_module_apply_submit']/span/span/span[2]").click()
 		time.sleep(2)
 		page.driver.find_element_by_xpath("/html/body/div[5]/div[3]/a").click()
+		return True
 
 
 def make_signing(page, frame, condition, rec_bank_info, rep_bank_info=None):
@@ -672,7 +680,7 @@ def make_signing(page, frame, condition, rec_bank_info, rep_bank_info=None):
 		# ----------------------------------------------------------------------------------------
 		# 选择银行类别
 		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/button/span[1]').click()
-		
+		time.sleep(1)
 		# 中国农业银行，默认写死了xpath，方法不推荐，先这样处理
 		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/div/ul/li[4]/a/span[1]').click()
 		
@@ -709,6 +717,8 @@ def make_signing(page, frame, condition, rec_bank_info, rep_bank_info=None):
 		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a').click()  # 确认提交
 		time.sleep(2)
 		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a').click()  # 确认
+		
+		return True
 
 
 def compliance_audit(page, condition):
@@ -723,6 +733,7 @@ def compliance_audit(page, condition):
 	# 查询待处理任务
 	t1 = _task_search(page, condition)
 	if not t1.text:
+		Log().error("can't found the task in the taskList")
 		return False
 	else:
 		t1.click()
@@ -758,6 +769,9 @@ def compliance_audit(page, condition):
 	# 提交
 	page.driver.find_element_by_xpath('//*[@id="apply_module_apply_submit"]').click()
 	page.driver.find_element_by_xpath('/html/body/div[4]/div[3]/a').click()
+	
+	page.driver.quit()
+	return True
 
 
 def _task_search(page, condition):
@@ -848,6 +862,7 @@ def authority_card_transact(page, condition):
 		page.driver.find_element_by_id('warrant_submit').click()
 		time.sleep(1)
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
+		return True
 	else:
 		return False
 
@@ -894,6 +909,9 @@ def warrant_apply(page, condition):
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a[1]').click()
 		time.sleep(1)
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
+	
+		page.driver.quit()
+		return True
 
 
 def finace_transact(page, condition):
@@ -940,6 +958,7 @@ def finace_transact(page, condition):
 		page.driver.find_element_by_xpath('/html/body/div[4]/div[3]/a').click()
 		# 提交
 		page.driver.find_element_by_xpath('//*[@id="financeApply_submit"]/span').click()
+		return True
 
 
 def finace_approve(page, condition, remark):
@@ -952,6 +971,7 @@ def finace_approve(page, condition, remark):
 	
 	# 财务待处理任务
 	page._click_control(page.driver, "id", "1DBCBC52791800014989140019301189")
+	time.sleep(1)
 	page.driver.find_element_by_name('/house/commonIndex/financial/toDoList').click()
 	page.driver.switch_to.frame('bTabs_tab_house_commonIndex_financial_toDoList')
 	
@@ -980,9 +1000,10 @@ def finace_approve(page, condition, remark):
 		page.driver.find_element_by_xpath('/html/body/div[4]/div[3]/a').click()
 		# submit
 		page.driver.find_element_by_xpath('//*[@id="financeApply_submit"]/span').click()
-	
+		
+		return True
 	else:
-		print(u'没有找到该申请单号')
+		logging.error(u'财务待处理任务中没有找到申请编号')
 		return False
 
 
@@ -1017,7 +1038,8 @@ def funds_raise(page, condition, remark):
 		# submit
 		page.driver.find_element_by_xpath('//*[@id="financeRasing_submit"]/span').click()
 		page.driver.find_element_by_xpath('/html/body/div[3]/div[3]/a[1]').click()
-	
+		
+		return True
 	else:
-		print(u'没有找到该申请单号')
+		logging.error(u'财务待处理任务中没有找到申请编号')
 		return False

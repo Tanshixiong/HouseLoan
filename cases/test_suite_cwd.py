@@ -1,5 +1,4 @@
 # coding:utf-8
-
 import unittest
 import json
 import os
@@ -17,7 +16,7 @@ class CWD(unittest.TestCase):
 		self.next_user_id = ""
 		local_dir = os.getcwd()
 		print("local_dir: %s " % local_dir)
-		
+		self.log = custom.Log()
 		# 环境初始化
 		# self._enviroment_change(0)
 		try:
@@ -70,12 +69,14 @@ class CWD(unittest.TestCase):
 		'''客户基本信息录入'''
 		
 		common.input_customer_base_info(self.page, self.data['applyVo'])
+		self.log.info("客户基本信息录入结束")
 	
 	def test_cwd_02_borrowr_info(self):
 		'''借款人/共贷人/担保人信息'''
 		
 		self.test_cwd_01_base_info()
 		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.log.info("录入借款人信息结束")
 	
 	def test_cwd_03_Property_info(self):
 		'''物业信息录入'''
@@ -83,6 +84,7 @@ class CWD(unittest.TestCase):
 		self.test_cwd_02_borrowr_info()
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
 		                                   self.data['applyCustCreditInfoVo'][0])
+		self.log.info("录入物业信息结束")
 	
 	def test_cwd_04_applydata(self):
 		'''申请件录入,提交'''
@@ -102,14 +104,17 @@ class CWD(unittest.TestCase):
 		
 		# 提交
 		common.submit(self.page)
+		self.log.info("申请件录入完成提交")
 	
 	def test_cwd_05_get_applyCode(self):
 		'''申请件查询'''
 		
 		self.test_cwd_04_applydata()
 		applycode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		self.log.info("申请件查询完成")
 		if applycode:
 			self.applyCode = applycode
+			print("applyCode:" + self.applyCode)
 			return applycode, True
 		else:
 			return None, False
@@ -120,6 +125,7 @@ class CWD(unittest.TestCase):
 		result = self.test_cwd_05_get_applyCode()[0]
 		res = common.query_task(self.page, result)
 		if res:
+			self.log.info("查询待处理任务成功")
 			return True
 		else:
 			return False
@@ -136,6 +142,7 @@ class CWD(unittest.TestCase):
 			self.page.user_info['auth']["username"] = res  # 更新下一个登录人
 			print self.page.user_info['auth']["username"]
 			self.next_user_id = res
+			self.log.info("完成流程监控查询")
 			return res, result[0]  # (下一个处理人ID, 申请件ID)
 	
 	def test_cwd_08_branch_supervisor_approval(self):
@@ -149,7 +156,10 @@ class CWD(unittest.TestCase):
 		page = Login(res[0])
 		
 		# 审批审核
-		common.approval_to_review(page, res[1], u'分公司主管同意审批')
+		res = common.approval_to_review(page, res[1], u'分公司主管同意审批')
+		if not res:
+			custom.Log().ERROR("can't find applycode")
+			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
 		next_id = common.process_monitor(page, self.applyCode)
@@ -157,6 +167,7 @@ class CWD(unittest.TestCase):
 			return False
 		else:
 			self.next_user_id = next_id
+			self.log.info("风控审批-分公司主管审批结束")
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return next_id  # 下一步处理人ID
@@ -171,7 +182,10 @@ class CWD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.approval_to_review(page, self.applyCode, u'分公司经理同意审批')
+		res = common.approval_to_review(page, self.applyCode, u'分公司经理同意审批')
+		if not res:
+			custom.Log().ERROR("can't find applycode")
+			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
@@ -179,6 +193,7 @@ class CWD(unittest.TestCase):
 			return False
 		else:
 			self.next_user_id = res
+			self.log.info("风控审批-分公司经理审批结束")
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
@@ -193,7 +208,10 @@ class CWD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.approval_to_review(page, self.applyCode, u'区域预复核通过')
+		res = common.approval_to_review(page, self.applyCode, u'区域预复核通过')
+		if not res:
+			custom.Log().ERROR("can't find applycode")
+			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
@@ -201,6 +219,7 @@ class CWD(unittest.TestCase):
 			return False
 		else:
 			self.next_user_id = res
+			self.log.info("区域预复核审批结束")
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
@@ -215,7 +234,10 @@ class CWD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.approval_to_review(page, self.applyCode, u'审批经理审批')
+		res = common.approval_to_review(page, self.applyCode, u'审批经理审批')
+		if not res:
+			custom.Log().ERROR("can't find applycode")
+			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
@@ -223,6 +245,7 @@ class CWD(unittest.TestCase):
 			return False
 		else:
 			self.next_user_id = res
+			self.log.info("风控审批-审批经理审批结束")
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
@@ -269,6 +292,7 @@ class CWD(unittest.TestCase):
 			return False
 		else:
 			self.next_user_id = res
+			self.log.info("合同打印完成")
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
@@ -283,7 +307,12 @@ class CWD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 合规审查
-		common.compliance_audit(page, self.applyCode)
+		res = common.compliance_audit(page, self.applyCode)
+		if res:
+			self.log.info("合规审批结束")
+		else:
+			self.log.error("合规审查失败")
+		self.page.driver.quit()
 	
 	def test_cwd_14_authority_card_member_transact(self):
 		'''权证办理'''
@@ -299,10 +328,13 @@ class CWD(unittest.TestCase):
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
 		if not res:
-			return False
+			self.log.error("上传权证资料失败")
+			raise
 		else:
+			self.log.info("权证办理完成")
 			self.next_user_id = res
 			# 当前用户退出系统
+			page.driver.quit()
 			self.page.driver.quit()
 			return res
 	
@@ -313,11 +345,15 @@ class CWD(unittest.TestCase):
 		next_id = self.test_cwd_14_authority_card_member_transact()
 		page = Login(next_id)
 		# 权证请款
-		common.warrant_apply(page, self.applyCode)
-	
-	# page = Login('xn052298')
-	# common.warrant_apply(page, "CS20171214X07")
-	
+		res = common.warrant_apply(page, self.applyCode)
+		if not res:
+			self.log.error("权证请款失败！")
+			raise
+		else:
+			self.log.info("完成权证请款")
+		# page = Login('xn052298')
+		# common.warrant_apply(page, "CS20171214X07")
+		self.page.driver.quit()
 	
 	def test_cwd_16_finace_transact(self):
 		'''财务办理'''
@@ -327,7 +363,7 @@ class CWD(unittest.TestCase):
 		# 业务助理登录
 		page = Login(self.company["business_assistant"]["user"])
 		common.finace_transact(page, self.applyCode)
-		
+		self.log.info("完成财务办理")
 		# page = Login('xn052298')
 		# common.finace_transact(page, 'CS20171215C02')
 		
@@ -350,21 +386,23 @@ class CWD(unittest.TestCase):
 		self.test_cwd_16_finace_transact()
 		page = Login(self.next_user_id)
 		result = common.finace_approve(page, self.applyCode, remark)
+		self.log.info("财务流程-分公司经理审批结束")
 		if not result:
 			return False
-		
-		# page = Login('xn028154')
-		# common.finace_approve(page, "CS20171215X14", remark)
-		# 查看下一步处理人
-		res = common.process_monitor(page, self.applyCode, 1)
-		if not res:
-			return False
 		else:
-			self.next_user_id = res
-			print("nextId:" + res)
-			# 当前用户退出系统
-			self.page.driver.quit()
-			return res
+			# page = Login('xn028154')
+			# common.finace_approve(page, "CS20171215X14", remark)
+			# 查看下一步处理人
+			res = common.process_monitor(page, self.applyCode, 1)
+			if not res:
+				return False
+			else:
+				self.next_user_id = res
+				print("nextId:" + res)
+				# 当前用户退出系统
+				page.driver.quit()
+				self.page.driver.quit()
+				return res
 	
 	def test_cwd_18_finace_approve_risk_control_manager(self):
 		'''财务风控经理审批'''
@@ -374,7 +412,7 @@ class CWD(unittest.TestCase):
 		self.test_cwd_17_finace_approve_branch_manager()
 		page = Login(self.next_user_id)
 		common.finace_approve(page, self.applyCode, remark)
-		
+		self.log.info("财务流程-风控经理审批结束")
 		# page = Login('xn003625')
 		# common.finace_approve(page, "CS20171215X14", remark)
 		# 查看下一步处理人
@@ -396,7 +434,7 @@ class CWD(unittest.TestCase):
 		self.test_cwd_18_finace_approve_risk_control_manager()
 		page = Login(self.next_user_id)
 		common.finace_approve(page, self.applyCode, remark)
-		#
+		self.log.info("财务流程-财务会计审批结束")
 		# page = Login('xn037166')
 		# common.finace_approve(page, "CS20171215X09", remark)
 		
@@ -419,6 +457,7 @@ class CWD(unittest.TestCase):
 		self.test_cwd_19_finace_approve_financial_accounting()
 		page = Login(self.next_user_id)
 		common.finace_approve(page, self.applyCode, remark)
+		self.log.info("财务流程-财务经理审批结束")
 	
 	# page = Login('xn0007533')
 	# common.finace_approve(page, "CS20171215X09", remark)
@@ -432,3 +471,5 @@ class CWD(unittest.TestCase):
 		self.test_cwd_20_finace_approve_financial_manager()
 		page = Login('xn0007533')
 		common.funds_raise(page, self.applyCode, remark)
+		self.page.driver.quit()
+		self.log.info("募资流程-资金主管审批结束")

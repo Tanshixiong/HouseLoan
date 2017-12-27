@@ -8,7 +8,7 @@ import json
 import os
 
 
-def log_to():
+def Log():
 	'''定义logger级别'''
 	
 	logging.basicConfig(

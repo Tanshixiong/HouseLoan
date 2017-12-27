@@ -11,6 +11,7 @@ from cases import test_gqt_input_data
 from cases import test_eyt_input_data
 from cases import test_xhd_input_data
 from cases import test_suite_cwd
+from cases.IntoCases import  test_into_case
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -23,7 +24,8 @@ if __name__ == "__main__":
 		# local_dir = os.getcwd()
 		local_dir = "E:\HouseLoanAuto"
 		print("local_dir: %s " % local_dir)
-		path = local_dir + "\\report\\" + now + "-result.html"
+		# path = local_dir + "\\report\\" + now + "-result.html"
+		path = local_dir + "\\report\\" + "index.html"
 		return local_dir, path
 	
 	
@@ -36,6 +38,7 @@ if __name__ == "__main__":
 	# 创建测试套
 	suite = unittest.TestSuite()
 	
+	#  以下方法会报错， 原因不明
 	# try:
 	# 	import config
 	#
@@ -61,6 +64,8 @@ if __name__ == "__main__":
 		# 过桥通用例
 		for i in temp['gqt']:
 			suite.addTest(test_gqt_input_data.GQT(i))
+		for i in temp['IntoCase']:
+			suite.addTest(test_into_case.IntoCase(i))
 	
 	# 定义测试报告
 	runner = HTMLTestRunner(stream=fp, title='测试报告', description='用例执行情况:')

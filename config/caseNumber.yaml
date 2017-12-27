@@ -35,6 +35,14 @@ eyt:
  - test_eyt_11_manager_approval
  - test_12_contract_signing
  - test_13_compliance_audit
+ - test_eyt_14_authority_card_member_transact
+ - test_eyt_15_warrant_apply
+ - test_eyt_16_finace_transact
+ - test_eyt_17_finace_approve_branch_manager
+ - test_eyt_18_finace_approve_risk_control_manager
+ - test_eyt_19_finace_approve_financial_accounting
+ - test_eyt_20_finace_approve_financial_manager
+ - test_eyt_21_funds_raise
 
 xhd:
  - test_xhd_01_base_info
@@ -43,6 +51,21 @@ xhd:
  - test_xhd_04_applydata
  - test_xhd_05_get_applyCode
  - test_xhd_06_show_task
+ - test_xhd_07_process_monitor
+ - test_xhd_08_branch_supervisor_approval
+ - test_xhd_09_branch_manager_approval
+ - test_xhd_10_regional_prereview
+ - test_xhd_11_manager_approval
+ - test_xhd_12_contract_signing
+ - test_xhd_13_compliance_audit
+ - test_xhd_14_authority_card_member_transact
+ - test_xhd_15_warrant_apply
+ - test_xhd_16_finace_transact
+ - test_xhd_17_finace_approve_branch_manager
+ - test_xhd_18_finace_approve_risk_control_manager
+ - test_xhd_19_finace_approve_financial_accounting
+ - test_xhd_20_finace_approve_financial_manager
+ - test_xhd_21_funds_raise
 
 gqt:
  - test_gqt_01

@@ -19,8 +19,8 @@ loc_cust_info = dict(
 
 # 客户基本信息 - 借款人/共贷人/担保人信息
 loc_borrower = dict(
-		jkrxm="input.datagrid-editable-input.validatebox-text",  # 借款人姓名
-		sfzhm="(//input[@type='text'])[17]",  # 身份证号码
+		jkrxm='//*[@id="datagrid-row-r1-2-0"]/td[5]/div/table/tbody/tr/td/input',  # 借款人姓名
+		sfzhm='//*[@id="datagrid-row-r1-2-0"]/td[6]/div/table/tbody/tr/td/input',  # 身份证号码
 		sjycd=dict(
 				locate="_easyui_textbox_input3",
 				value="_easyui_combobox_i2_1",
@@ -30,8 +30,8 @@ loc_borrower = dict(
 				value="_easyui_combobox_i3_0",
 				),  # 婚姻状况
 		jtdzxx="_easyui_textbox_input5",  # 家庭地址信息
-		xxfs="(//input[@type='text'])[26]",  # 联系方式
-		dwmc="(//input[@type='text'])[27]",  # 单位名称
+		xxfs='//*[@id="datagrid-row-r1-2-0"]/td[11]/div/table/tbody/tr/td/input',  # 联系方式
+		dwmc='//*[@id="datagrid-row-r1-2-0"]/td[12]/div/table/tbody/tr/td/input',  # 单位名称
 		gsgm=dict(
 				# a="div.datagrid-view2 > div.datagrid-body",
 				a="//*[@id=\"_easyui_textbox_input6\"]",
@@ -45,7 +45,7 @@ loc_borrower = dict(
 				value="_easyui_combobox_i5_8",
 				),  # 所属行业
 		zw="_easyui_textbox_input9",  # 职位
-		rzrq="(//input[@type='text'])[36]",  # 入职日期
+		rzrq='//*[@id="datagrid-row-r1-2-0"]/td[17]/div/table/tbody/tr/td/input',  # 入职日期
 		gzyx="_easyui_textbox_input10",  # 工作年限
 		yjsr="_easyui_textbox_input11",  # 月均收入
 		sfysb="input[type=\"checkbox\"]",  # 是否有社保 Todo

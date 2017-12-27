@@ -6,10 +6,16 @@
 
 import random
 import unittest
-
+import os
+import json
 from common import common
 from common.login import Login
-from common.custom import getName, logout
+from common.custom import (
+	getName,
+	logout,
+	enviroment_change,
+	Log
+	)
 
 
 class EYT(unittest.TestCase):
@@ -79,6 +85,27 @@ class EYT(unittest.TestCase):
 	def setUp(self):
 		self._init_params()
 		self.page = Login()
+		self.applyCode = ""
+		
+		try:
+			import config
+			rootdir = config.__path__[0]
+			config_env = os.path.join(rootdir, 'env.json')
+			print("config_env:" + config_env)
+			with open(config_env, 'r') as f:
+				self.da = json.load(f)
+				self.number = self.da["number"]
+				self.env = self.da["enviroment"]
+			
+			filename = "data_cwd.json"
+			data, company = enviroment_change(filename, self.number, self.env)
+			# 录入的源数据
+			self.data = data
+			# 分公司选择
+			self.company = company
+		except Exception as e:
+			print('load config error:', str(e))
+			raise
 	
 	def tearDown(self):
 		self.page.quit()
@@ -128,6 +155,7 @@ class EYT(unittest.TestCase):
 		applycode = common.get_applycode(self.page, name)
 		if applycode:
 			self.cust_info['applyCode'] = applycode
+			self.applyCode = applycode
 			return applycode, True
 		else:
 			return None, False
@@ -216,14 +244,21 @@ class EYT(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 审批审核
-		common.approval_to_review(page, self.cust_info['applyCode'], u'区域预复核通过')
+		res = common.approval_to_review(page, self.cust_info['applyCode'], u'区域预复核通过')
+		if not res:
+			Log().error("区域预复核失败")
+			raise
+		else:
+			Log().info("区域预复核审批完成！")
 		
 		# 查看下一步处理人
-		res = common.process_monitor(page, self.cust_info['applyCode'])
+		res = common.process_monitor(page, self.applyCode)
 		if not res:
-			return False
+			Log().error("Can't not found the next UserId")
+			raise
 		else:
-			self.cust_info['next_user_id'] = res
+			self.next_user_id = res
+			Log().info("next_user_id %s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
@@ -299,7 +334,7 @@ class EYT(unittest.TestCase):
 	def test_13_compliance_audit(self):
 		'''合规审查'''
 		
-		i_frame = 'bTabs_tab_house_commonIndex_todoList'
+		# i_frame = 'bTabs_tab_house_commonIndex_todoList'
 		# 获取下一步合同登录ID
 		next_id = self.test_12_contract_signing()
 		
@@ -307,7 +342,185 @@ class EYT(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 合规审查
-		common.compliance_audit(page, self.cust_info['applyCode'])
+		res = common.compliance_audit(page, self.cust_info['applyCode'])
+		if res:
+			Log().info("合规审查通过")
+		else:
+			Log().error("合规审查失败")
+	
+	def test_eyt_14_authority_card_member_transact(self):
+		'''权证办理'''
+		
+		# print  u"申请编号:" + self.applyCode
+		# 合规审查
+		self.test_13_compliance_audit()
+		# 权证员登录
+		page = Login(self.company["authority_member"]["user"])
+		# 权证员上传权证信息
+		rs = common.authority_card_transact(page, self.applyCode)
+		if not rs:
+			Log().error("上传权证信息失败")
+			raise
+		# common.authority_card_transact(page, "GZ20171213C06")
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode)
+		if not res:
+			Log().error("权证办理-没找到下一步处理人")
+			raise
+		else:
+			self.next_user_id = res
+			Log().info("下一步处理人：%s", self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+			return res
+	
+	def test_eyt_15_warrant_apply(self):
+		'''权证请款-原件请款'''
+		
+		# 获取合同打印专员ID
+		next_id = self.test_eyt_14_authority_card_member_transact()
+		page = Login(next_id)
+		# 权证请款
+		res = common.warrant_apply(page, self.applyCode)
+		if res:
+			Log().info("权证请款成功")
+		else:
+			Log().error("权证请款失败")
+	
+	def test_eyt_16_finace_transact(self):
+		'''财务办理'''
+		
+		# 权证请款
+		self.test_eyt_15_warrant_apply()
+		# 业务助理登录
+		page = Login(self.company["business_assistant"]["user"])
+		rs = common.finace_transact(page, self.applyCode)
+		if not rs:
+			Log().error("财务办理失败")
+			raise
+		
+		# page = Login('xn052298')
+		# common.finace_transact(page, 'CS20171215C02')
+		
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode, 1)
+		if not res:
+			Log().error("没有找到下一步处理人")
+			raise
+		else:
+			self.next_user_id = res
+			Log().info("下一步处理人：%s", self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+	
+	def test_eyt_17_finace_approve_branch_manager(self):
+		'''财务分公司经理审批'''
+		
+		remark = u"财务分公司经理审批"
+		
+		# 下一个处理人
+		self.test_eyt_16_finace_transact()
+		page = Login(self.next_user_id)
+		result = common.finace_approve(page, self.applyCode, remark)
+		if not result:
+			Log().error("财务流程-分公司经理审批失败")
+			raise
+		# page = Login('xn028154')
+		# common.finace_approve(page, "CS20171215X14", remark)
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode, 1)
+		if not res:
+			Log().error("没有找到下一步处理人")
+			raise
+		else:
+			self.next_user_id = res
+			print("nextId:" + res)
+			Log().info("下一步处理人: %s", self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+	
+	def test_eyt_18_finace_approve_risk_control_manager(self):
+		'''财务风控经理审批'''
+		
+		remark = u'风控经理审批'
+		
+		self.test_eyt_17_finace_approve_branch_manager()
+		page = Login(self.next_user_id)
+		result = common.finace_approve(page, self.applyCode, remark)
+		if not result:
+			Log().error("财务流程-风控经理审批出错")
+			raise
+		else:
+			Log().info("财务流程-风控经理审批完成")
+		
+		# page = Login('xn003625')
+		# common.finace_approve(page, "CS20171215X14", remark)
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode, 1)
+		if not res:
+			Log().error("Can't found the next userId!")
+			raise
+		else:
+			self.next_user_id = res
+			print("nextId:" + self.next_user_id)
+			Log().info("下一步处理人:%s", self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+	
+	def test_eyt_19_finace_approve_financial_accounting(self):
+		'''财务会计审批'''
+		
+		remark = u'财务会计审批'
+		
+		self.test_eyt_18_finace_approve_risk_control_manager()
+		page = Login(self.next_user_id)
+		rs = common.finace_approve(page, self.applyCode, remark)
+		if not rs:
+			Log().error("财务流程-财务会计审批失败")
+			raise
+		else:
+			Log().info("财务流程-财务会计审批完成")
+		# page = Login('xn037166')
+		# common.finace_approve(page, "CS20171215X09", remark)
+		
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode, 1)
+		if not res:
+			Log().error("Can't found The next UserId")
+			raise
+		else:
+			self.next_user_id = res
+			print("nextId:" + self.next_user_id)
+			Log().info("nextId is %s", self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+	
+	def test_eyt_20_finace_approve_financial_manager(self):
+		'''财务经理审批'''
+		
+		remark = u'财务经理审批'
+		
+		self.test_eyt_19_finace_approve_financial_accounting()
+		page = Login(self.next_user_id)
+		res = common.finace_approve(page, self.applyCode, remark)
+		if not res:
+			Log().error("财务流程-财务经理审批失败")
+		else:
+			Log().info("财务流程-财务经理审批完成")
+	
+	def test_eyt_21_funds_raise(self):
+		'''资金主管募资审批'''
+		
+		remark = u'资金主管审批'
+		
+		self.test_eyt_20_finace_approve_financial_manager()
+		page = Login('xn0007533')
+		res = common.funds_raise(page, self.applyCode, remark)
+		if not res:
+			Log().error("募资-资金主管审批失败")
+			raise
+		else:
+			Log().info("募资-资金主管审批完成!")
 
 
 if __name__ == '__main__':

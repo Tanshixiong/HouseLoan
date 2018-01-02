@@ -12,6 +12,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from config.locator import loc_cust_info, loc_borrower
 from selenium.common import exceptions as EC
 from custom import getName, Log
+import datetime
 
 
 def browser(arg="chrome"):
@@ -83,13 +84,13 @@ def input_customer_borrow_info(page, data):
 		page._click_control(page.driver, "xpath", ".//*[@id='tb']/a[1]/span[2]")
 		# Update  2017-12-27
 		# 姓名元素变更，身份证号码变更
-		page.driver.find_element_by_xpath(loc_borrower['jkrxm']).send_keys(unicode(custName)) # 借款人姓名
+		page.driver.find_element_by_xpath(loc_borrower['jkrxm']).send_keys(unicode(custName))  # 借款人姓名
 		time.sleep(1)
 		page._send_data(page.driver, "xpath", loc_borrower['sfzhm'], data["idNum"])  # 身份证号码
 		# 受教育程度
 		page._click_control(page.driver, "id", loc_borrower['sjycd']['locate'])
 		page._click_control(page.driver, "id", loc_borrower['sjycd']['value'])
-		
+		time.sleep(1)
 		page._click_control(page.driver, "id", loc_borrower['hyzk']['locate'])  # 婚姻状况
 		time.sleep(1)
 		page._click_control(page.driver, "id", loc_borrower['hyzk']['value'])
@@ -136,9 +137,9 @@ def input_more_borrower(page):
 	
 	page.driver.find_element_by_xpath('//*[@id="tb"]/a[1]/span[2]').click()
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[4]/div/table/tbody/tr/td/input').send_keys(u"小黑")
+			'//*[@id="datagrid-row-r1-2-1"]/td[5]/div/table/tbody/tr/td/input').send_keys(u"小黑")
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[5]/div/table/tbody/tr/td/input').send_keys("360101199101011054")
+			'//*[@id="datagrid-row-r1-2-1"]/td[6]/div/table/tbody/tr/td/input').send_keys("360101199101011054")
 	time.sleep(2)
 	page.driver.find_element_by_id('_easyui_textbox_input14').click()
 	page.driver.find_element_by_id('_easyui_combobox_i8_2').click()
@@ -148,9 +149,9 @@ def input_more_borrower(page):
 	
 	page.driver.find_element_by_id('_easyui_textbox_input16').send_keys("xxxaaaa")
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[10]/div/table/tbody/tr/td/input').send_keys("13912341923")
+			'//*[@id="datagrid-row-r1-2-1"]/td[11]/div/table/tbody/tr/td/input').send_keys("13912341923")
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[11]/div/table/tbody/tr/td/input').send_keys("yyyyyy")
+			'//*[@id="datagrid-row-r1-2-1"]/td[12]/div/table/tbody/tr/td/input').send_keys("yyyyyy")
 	page.driver.find_element_by_id('_easyui_textbox_input17').click()
 	page.driver.find_element_by_id('_easyui_combobox_i10_3').click()
 	page.driver.find_element_by_id('_easyui_textbox_input18').click()
@@ -158,12 +159,12 @@ def input_more_borrower(page):
 	
 	page.driver.find_element_by_id('_easyui_textbox_input20').send_keys("bbbbb")
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[16]/div/table/tbody/tr/td/input').send_keys("2017-12-19")
+			'//*[@id="datagrid-row-r1-2-1"]/td[17]/div/table/tbody/tr/td/input').send_keys(str(datetime.date.today()))
 	page.driver.find_element_by_id('_easyui_textbox_input21').send_keys(12)
 	page.driver.find_element_by_id('_easyui_textbox_input22').send_keys(20000)
 	
 	page.driver.find_element_by_xpath(
-			'//*[@id="datagrid-row-r1-2-1"]/td[19]/div/table/tbody/tr/td/input').click()
+			'//*[@id="datagrid-row-r1-2-1"]/td[20]/div/table/tbody/tr/td/input').click()
 	
 	# 确认
 	page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
@@ -291,7 +292,7 @@ def input_bbi_Property_info(page):
 	save(page)
 
 
-def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo):
+def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, productName=None):
 	'''
 		车位贷物业信息录入
 	:param page: 页面对象
@@ -381,6 +382,31 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo):
 	page.driver.find_element_by_name("queryLoanNum").send_keys(applyCustCreditInfoVo['queryLoanNum'])
 	page.driver.find_element_by_name("loanOtherAmt").clear()
 	page.driver.find_element_by_name("loanOtherAmt").send_keys(applyCustCreditInfoVo['loanOtherAmt'])
+	
+	if productName == 'gqt':
+		page.driver.find_element_by_link_text("垫资情况").click()
+		# 基本情况
+		Select(page.driver.find_element_by_name("loaningType")).select_by_value("DA01")
+		page.driver.find_element_by_name('oldBankBranch').send_keys(u"南山科技园支行")
+		page.driver.find_element_by_name('oldBankPhone').send_keys('13801349321')
+		page.driver.find_element_by_name('oldBankManager').send_keys(u"朱小通")
+		page.driver.find_element_by_name('newBankBranch').send_keys(u'民治支行')
+		page.driver.find_element_by_name('newBankManager').send_keys(u'易健')
+		page.driver.find_element_by_name('newBankPhone').send_keys('13901234123')
+		# 贷款情况
+		page.driver.find_element_by_link_text('贷款情况').click()
+		page.driver.find_element_by_name('validDate').send_keys('2020-01-01')
+		page.driver.find_element_by_name('bankAppRemark').send_keys(u'无异常')
+		page.driver.find_element_by_name('checkAppCondition').send_keys(u'无异常')
+		page.driver.find_element_by_name('paymentAccount').send_keys('121334')
+		# 交易情况
+		page.driver.find_element_by_link_text('交易情况').click()
+		page.driver.find_element_by_name('tradeDate').send_keys('2018-01-01')
+		page.driver.find_element_by_name('tradeSumAmount').send_keys('1000000')
+		page.driver.find_element_by_name('deposit').send_keys('800000')
+		page.driver.find_element_by_name('fundSupervisionAmount').send_keys('800000')
+		
+		
 	
 	# 网查信息
 	page.driver.find_element_by_link_text(u"网查信息").click()
@@ -848,7 +874,8 @@ def authority_card_transact(page, condition):
 		# 选择日期
 		js = "$('input[name=storageTime]').removeAttr('readonly')"
 		page.driver.execute_script(js)
-		page.driver.find_element_by_xpath('//*[@id="warrantForm"]/div/div[4]/div/div/input').send_keys("2017-12-12")
+		page.driver.find_element_by_xpath('//*[@id="warrantForm"]/div/div[4]/div/div/input').send_keys(
+				str(datetime.date.today()))
 		
 		page.driver.find_element_by_name('warrantsCode').send_keys("12346689adbcdd")
 		# 保存权证信息
@@ -909,7 +936,7 @@ def warrant_apply(page, condition):
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a[1]').click()
 		time.sleep(1)
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
-	
+		
 		page.driver.quit()
 		return True
 
@@ -949,7 +976,7 @@ def finace_transact(page, condition):
 		ActionChains(page.driver).double_click(res).perform()
 		time.sleep(2)
 		page.driver.switch_to.frame('myIframeImage1')
-		page.driver.find_element_by_name('preLoaningDate').send_keys("2017-12-14")
+		page.driver.find_element_by_name('preLoaningDate').send_keys(str(datetime.date.today()))
 		time.sleep(1)
 		# 保存
 		page.driver.switch_to.parent_frame()
@@ -997,10 +1024,11 @@ def finace_approve(page, condition, remark):
 		# save
 		page.driver.switch_to.parent_frame()
 		page.driver.find_element_by_xpath('//*[@id="financeApply_save"]/span').click()
+		time.sleep(1)
 		page.driver.find_element_by_xpath('/html/body/div[4]/div[3]/a').click()
 		# submit
 		page.driver.find_element_by_xpath('//*[@id="financeApply_submit"]/span').click()
-		
+		time.sleep(2)
 		return True
 	else:
 		logging.error(u'财务待处理任务中没有找到申请编号')

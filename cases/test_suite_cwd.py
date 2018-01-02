@@ -5,7 +5,10 @@ import os
 from common import common
 from common.login import Login
 from common import custom
+import sys
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 class CWD(unittest.TestCase):
 	'''车位贷用例'''
@@ -158,7 +161,7 @@ class CWD(unittest.TestCase):
 		# 审批审核
 		res = common.approval_to_review(page, res[1], u'分公司主管同意审批')
 		if not res:
-			custom.Log().ERROR("can't find applycode")
+			custom.Log().error("can't find applycode")
 			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
@@ -184,7 +187,7 @@ class CWD(unittest.TestCase):
 		# 审批审核
 		res = common.approval_to_review(page, self.applyCode, u'分公司经理同意审批')
 		if not res:
-			custom.Log().ERROR("can't find applycode")
+			custom.Log().error("can't find applycode")
 			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
@@ -210,7 +213,7 @@ class CWD(unittest.TestCase):
 		# 审批审核
 		res = common.approval_to_review(page, self.applyCode, u'区域预复核通过')
 		if not res:
-			custom.Log().ERROR("can't find applycode")
+			custom.Log().error("can't find applycode")
 			raise ValueError("can't find applycode")
 		
 		# 查看下一步处理人
@@ -456,8 +459,12 @@ class CWD(unittest.TestCase):
 		
 		self.test_cwd_19_finace_approve_financial_accounting()
 		page = Login(self.next_user_id)
-		common.finace_approve(page, self.applyCode, remark)
-		self.log.info("财务流程-财务经理审批结束")
+		res = common.finace_approve(page, self.applyCode, remark)
+		if res:
+			self.log.info("财务流程-财务经理审批结束")
+		else:
+			self.log.error("Error: 财务经理审批出错！")
+			raise
 	
 	# page = Login('xn0007533')
 	# common.finace_approve(page, "CS20171215X09", remark)
@@ -470,6 +477,12 @@ class CWD(unittest.TestCase):
 		
 		self.test_cwd_20_finace_approve_financial_manager()
 		page = Login('xn0007533')
-		common.funds_raise(page, self.applyCode, remark)
-		self.page.driver.quit()
-		self.log.info("募资流程-资金主管审批结束")
+		res = common.funds_raise(page, self.applyCode, remark)
+		if res:
+			self.log.info("募资流程-资金主管审批结束")
+			self.page.driver.quit()
+		else:
+			self.log.error("Error: 募资流程出错！")
+			raise
+	
+	

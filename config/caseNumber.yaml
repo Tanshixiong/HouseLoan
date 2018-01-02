@@ -68,7 +68,27 @@ xhd:
  - test_xhd_21_funds_raise
 
 gqt:
- - test_gqt_01
+ - test_gqt_01_base_info
+ - test_gqt_02_input
+ - test_cwd_03_Property_info
+ - test_gqt_04_applydata
+ - test_gqt_05_get_applyCode
+ - test_gqt_06_show_task
+ - test_gqt_07_process_monitor
+ - test_gqt_08_branch_supervisor_approval
+ - test_gqt_09_branch_manager_approval
+ - test_gqt_10_regional_prereview
+ - test_gqt_11_manager_approval
+ - test_gqt_12_contract_signing
+ - test_gqt_13_compliance_audit
+ - test_gqt_14_authority_card_member_transact
+ - test_gqt_15_warrant_apply
+ - test_gqt_16_finace_transact
+ - test_gqt_17_finace_approve_branch_manager
+ - test_gqt_18_finace_approve_risk_control_manager
+ - test_gqt_19_finace_approve_financial_accounting
+ - test_gqt_20_finace_approve_financial_manager
+ - test_gqt_21_funds_raise
 IntoCase:
  - test_01_one_borrower
  - test_03_two_borrower

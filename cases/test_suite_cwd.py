@@ -10,6 +10,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+
 class CWD(unittest.TestCase):
 	'''车位贷用例'''
 	
@@ -78,16 +79,27 @@ class CWD(unittest.TestCase):
 		'''借款人/共贷人/担保人信息'''
 		
 		self.test_cwd_01_base_info()
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
-		self.log.info("录入借款人信息结束")
+		try:
+			res = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+			if res:
+				self.log.info("录入借款人信息结束")
+		except Exception as e:
+			self.log.error("Error:", e)
+			raise
 	
 	def test_cwd_03_Property_info(self):
 		'''物业信息录入'''
 		
 		self.test_cwd_02_borrowr_info()
-		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
-		                                   self.data['applyCustCreditInfoVo'][0])
-		self.log.info("录入物业信息结束")
+		
+		data1 = self.data['applyPropertyInfoVo'][0]
+		data2 = self.data['applyCustCreditInfoVo'][0]
+		
+		res = common.input_cwd_bbi_Property_info(self.page, data1, data2, True)
+		if res:
+			self.log.info("录入物业信息结束")
+		else:
+			raise
 	
 	def test_cwd_04_applydata(self):
 		'''申请件录入,提交'''
@@ -484,5 +496,3 @@ class CWD(unittest.TestCase):
 		else:
 			self.log.error("Error: 募资流程出错！")
 			raise
-	
-	

@@ -457,12 +457,39 @@ class GQT(unittest.TestCase):
 			return res
 	
 	
-	def test_gqt_19_finace_approve_financial_accounting(self):
+	def test_gqt_19_funds_appprove(self):
+		'''资金主管审批'''
+		
+		remark = u'资金主管审批'
+		self.test_gqt_18_finace_approve_risk_control_manager()
+		page = Login(self.next_user_id)
+		result = common.finace_approve(page, self.applyCode, remark)
+		if result:
+			self.log.info("财务流程-资金主管审批结束")
+		else:
+			self.log.error("Error-资金主管审批报错！")
+			raise
+		# page = Login('xn037166')
+		# common.finace_approve(page, "CS20171215X09", remark)
+		
+		# 查看下一步处理人
+		res = common.process_monitor(page, self.applyCode, 1)
+		if not res:
+			return False
+		else:
+			self.next_user_id = res
+			print("nextId:" + self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+			return res
+		
+	
+	def test_gqt_20_finace_approve_financial_accounting(self):
 		'''财务会计审批'''
 		
 		remark = u'财务会计审批'
 		
-		self.test_gqt_18_finace_approve_risk_control_manager()
+		self.test_gqt_19_funds_appprove()
 		page = Login(self.next_user_id)
 		result = common.finace_approve(page, self.applyCode, remark)
 		if result:
@@ -484,12 +511,12 @@ class GQT(unittest.TestCase):
 			self.page.driver.quit()
 			return res
 	
-	def test_gqt_20_finace_approve_financial_manager(self):
+	def test_gqt_21_finace_approve_financial_manager(self):
 		'''财务经理审批'''
 		
 		remark = u'财务经理审批'
 		
-		self.test_gqt_19_finace_approve_financial_accounting()
+		self.test_gqt_20_finace_approve_financial_accounting()
 		page = Login(self.next_user_id)
 		res = common.finace_approve(page, self.applyCode, remark)
 		if res:
@@ -499,12 +526,12 @@ class GQT(unittest.TestCase):
 			raise
 	
 	
-	def test_gqt_21_funds_raise(self):
+	def test_gqt_22_funds_raise(self):
 		'''资金主管募资审批'''
 		
 		remark = u'资金主管审批'
 		
-		self.test_gqt_20_finace_approve_financial_manager()
+		self.test_gqt_21_finace_approve_financial_manager()
 		page = Login('xn0007533')
 		res = common.funds_raise(page, self.applyCode, remark)
 		if res:

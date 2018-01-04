@@ -121,9 +121,10 @@ def input_customer_borrow_info(page, data):
 		page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
 		# 临时保存
 		save(page)
+		return True
 	except EC.NoSuchElementException as e:
 		Log().error(e)
-		raise
+		return False
 
 
 # 输入多个借款人（待完善）
@@ -292,12 +293,14 @@ def input_bbi_Property_info(page):
 	save(page)
 
 
-def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, productName=None):
+def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=False, productName=None):
 	'''
 		车位贷物业信息录入
 	:param page: 页面对象
 	:param data: 传入的数据对象
 	:param applyCustCreditInfoVo: 征信数据
+	:param associated  关联世联
+	:param productName 过桥通 / 非过桥通
 	:return:
 	'''
 	
@@ -308,126 +311,147 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, productName=N
 		page.driver.execute_script("window.scrollTo(1600, 0)")  # 页面滑动到顶部
 		page.driver.find_element_by_link_text(u"业务基本信息").click()
 	except EC.ElementNotVisibleException as e:
-		print e.msg
-		raise e
+		Log().error(e.msg)
+		return False
 	
-	page.driver.find_element_by_name("propertyOwner").clear()
-	page.driver.find_element_by_name("propertyOwner").send_keys(data['propertyOwner'])  # 产权人
-	page.driver.find_element_by_name("propertyNo").clear()
-	page.driver.find_element_by_name("propertyNo").send_keys(data['propertyNo'])  # 房产证号
-	
-	# Todo
-	time.sleep(3)
-	page.driver.find_element_by_name("propertyStatus").click()  # 是否涉贷物业
-	
-	page.driver.find_element_by_name("propertyAge").click()
-	page.driver.find_element_by_name("propertyAge").clear()
-	page.driver.find_element_by_name("propertyAge").send_keys(data['propertyAge'])  # 房龄
-	
-	page.driver.find_element_by_name("propertyArea").clear()
-	page.driver.find_element_by_name("propertyArea").send_keys(data['propertyArea'])  # 建筑面积
-	
-	page.driver.find_element_by_name("registrationPrice").clear()
-	page.driver.find_element_by_name("registrationPrice").send_keys(data['registrationPrice'])  # 等级价
-	
-	# 地址
-	Select(page.driver.find_element_by_name("propertyAddressProvince")).select_by_visible_text(
-			data['propertyAddressProvince'])
-	Select(page.driver.find_element_by_name("propertyAddressCity")).select_by_visible_text(data['propertyAddressCity'])
-	Select(page.driver.find_element_by_name("propertyAddressDistinct")).select_by_visible_text(
-			data['propertyAddressDistinct'])
-	page.driver.find_element_by_id("propertyAddressDetail").clear()
-	page.driver.find_element_by_id("propertyAddressDetail").send_keys(data['propertyAddressDetails'])
-	
-	page.driver.find_element_by_name("evaluationSumAmount").clear()
-	page.driver.find_element_by_name("evaluationSumAmount").send_keys(data['evaluationSumAmount'])  # 评估公允价总值
-	page.driver.find_element_by_name("evaluationNetAmount").clear()
-	page.driver.find_element_by_name("evaluationNetAmount").send_keys(data['evaluationNetAmount'])  # 评估公允价净值
-	page.driver.find_element_by_name("slSumAmount").clear()
-	page.driver.find_element_by_name("slSumAmount").send_keys(data['slSumAmount'])  # 世联评估总值
-	page.driver.find_element_by_name("slPrice").clear()
-	page.driver.find_element_by_name("slPrice").send_keys(data['slPrice'])  # 世联评估净值
-	page.driver.find_element_by_name("agentSumAmout").clear()
-	page.driver.find_element_by_name("agentSumAmout").send_keys(data['agentSumAmout'])  # 中介评估总值
-	page.driver.find_element_by_name("agentNetAmount").clear()
-	page.driver.find_element_by_name("agentNetAmount").send_keys(data['agentNetAmount'])  # 中介评估净值
-	page.driver.find_element_by_name("netSumAmount").clear()
-	page.driver.find_element_by_name("netSumAmount").send_keys(data['netSumAmount'])  # 网评总值
-	page.driver.find_element_by_name("netAmount").clear()
-	page.driver.find_element_by_name("netAmount").send_keys(data['netAmount'])  # 网评净值
-	page.driver.find_element_by_name("localSumAmount").clear()
-	page.driver.find_element_by_name("localSumAmount").send_keys(data['localSumAmount'])  # 当地评估总值
-	page.driver.find_element_by_name("localNetValue").clear()
-	page.driver.find_element_by_name("localNetValue").send_keys(data['localNetValue'])  # 当地评估净值
-	page.driver.find_element_by_name("remark").clear()
-	page.driver.find_element_by_name("remark").send_keys(data['remark'])  # 物业配套描述
-	page.driver.find_element_by_name("localAssessmentOrigin").clear()
-	page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])  # 当地评估来源
-	page.driver.find_element_by_name("assessmentOrigin").clear()
-	page.driver.find_element_by_name("assessmentOrigin").send_keys(data['assessmentOrigin'])  # 评估来源
-	page.driver.find_element_by_name("evaluationCaseDescrip").click()
-	page.driver.find_element_by_name("localAssessmentOrigin").clear()
-	page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])
-	
-	page.driver.find_element_by_name("evaluationCaseDescrip").clear()
-	page.driver.find_element_by_name("evaluationCaseDescrip").send_keys(data['evaluationCaseDescrip'])  # 评估情况描述
-	
-	# 征信信息
-	page.driver.find_element_by_link_text(u"征信信息").click()
-	page.driver.find_element_by_name("loanIdNum").clear()
-	page.driver.find_element_by_name("loanIdNum").send_keys(applyCustCreditInfoVo['loanIdNum'])
-	page.driver.find_element_by_name("creditOverdueNum").clear()
-	page.driver.find_element_by_name("creditOverdueNum").send_keys(applyCustCreditInfoVo['creditOverdueNum'])
-	page.driver.find_element_by_name("queryLoanNum").clear()
-	page.driver.find_element_by_name("queryLoanNum").send_keys(applyCustCreditInfoVo['queryLoanNum'])
-	page.driver.find_element_by_name("loanOtherAmt").clear()
-	page.driver.find_element_by_name("loanOtherAmt").send_keys(applyCustCreditInfoVo['loanOtherAmt'])
-	
-	if productName == 'gqt':
-		page.driver.find_element_by_link_text("垫资情况").click()
-		# 基本情况
-		Select(page.driver.find_element_by_name("loaningType")).select_by_value("DA01")
-		page.driver.find_element_by_name('oldBankBranch').send_keys(u"南山科技园支行")
-		page.driver.find_element_by_name('oldBankPhone').send_keys('13801349321')
-		page.driver.find_element_by_name('oldBankManager').send_keys(u"朱小通")
-		page.driver.find_element_by_name('newBankBranch').send_keys(u'民治支行')
-		page.driver.find_element_by_name('newBankManager').send_keys(u'易健')
-		page.driver.find_element_by_name('newBankPhone').send_keys('13901234123')
-		# 贷款情况
-		page.driver.find_element_by_link_text('贷款情况').click()
-		page.driver.find_element_by_name('validDate').send_keys('2020-01-01')
-		page.driver.find_element_by_name('bankAppRemark').send_keys(u'无异常')
-		page.driver.find_element_by_name('checkAppCondition').send_keys(u'无异常')
-		page.driver.find_element_by_name('paymentAccount').send_keys('121334')
-		# 交易情况
-		page.driver.find_element_by_link_text('交易情况').click()
-		page.driver.find_element_by_name('tradeDate').send_keys('2018-01-01')
-		page.driver.find_element_by_name('tradeSumAmount').send_keys('1000000')
-		page.driver.find_element_by_name('deposit').send_keys('800000')
-		page.driver.find_element_by_name('fundSupervisionAmount').send_keys('800000')
+	try:
+		page.driver.find_element_by_name("propertyOwner").clear()
+		page.driver.find_element_by_name("propertyOwner").send_keys(data['propertyOwner'])  # 产权人
+		page.driver.find_element_by_name("propertyNo").clear()
+		page.driver.find_element_by_name("propertyNo").send_keys(data['propertyNo'])  # 房产证号
 		
+		# Todo
+		time.sleep(3)
+		page.driver.find_element_by_name("propertyStatus").click()  # 是否涉贷物业
 		
-	
-	# 网查信息
-	page.driver.find_element_by_link_text(u"网查信息").click()
-	page.driver.find_element_by_class_name("remark").click()
-	p1 = page.driver.find_element_by_xpath("//*[@id='apply_module_check_data_form']/div/div/textarea")
-	p1.click()
-	p1.send_keys(u"哈哈哈哈哈，无异常")
-	
-	# 借款用途及回款来源
-	page.driver.find_element_by_link_text(u"借款用途及回款来源").click()
-	page.driver.find_element_by_id("apply_module_payment_source").send_keys(u"薪资回款")
-	p2 = page.driver.find_element_by_xpath("//*[@id=\"apply_module_remark\"]")
-	p2.click()
-	p2.send_keys(u"无异常")
-	
-	# 风控措施
-	page.driver.find_element_by_link_text(u"风控措施").click()
-	page.driver.find_element_by_name("riskRemark").click()
-	page.driver.find_element_by_name("riskRemark").send_keys(u"无异常")
-	# 保存
-	save(page)
+		page.driver.find_element_by_name("propertyAge").click()
+		page.driver.find_element_by_name("propertyAge").clear()
+		page.driver.find_element_by_name("propertyAge").send_keys(data['propertyAge'])  # 房龄
+		
+		page.driver.find_element_by_name("propertyArea").clear()
+		page.driver.find_element_by_name("propertyArea").send_keys(data['propertyArea'])  # 建筑面积
+		
+		page.driver.find_element_by_name("registrationPrice").clear()
+		page.driver.find_element_by_name("registrationPrice").send_keys(data['registrationPrice'])  # 等级价
+		
+		# 地址
+		Select(page.driver.find_element_by_name("propertyAddressProvince")).select_by_visible_text(
+				data['propertyAddressProvince'])
+		Select(page.driver.find_element_by_name("propertyAddressCity")).select_by_visible_text(
+				data['propertyAddressCity'])
+		Select(page.driver.find_element_by_name("propertyAddressDistinct")).select_by_visible_text(
+				data['propertyAddressDistinct'])
+		page.driver.find_element_by_id("propertyAddressDetail").clear()
+		page.driver.find_element_by_id("propertyAddressDetail").send_keys(data['propertyAddressDetails'])
+		
+		page.driver.find_element_by_name("evaluationSumAmount").clear()
+		page.driver.find_element_by_name("evaluationSumAmount").send_keys(data['evaluationSumAmount'])  # 评估公允价总值
+		page.driver.find_element_by_name("evaluationNetAmount").clear()
+		page.driver.find_element_by_name("evaluationNetAmount").send_keys(data['evaluationNetAmount'])  # 评估公允价净值
+		page.driver.find_element_by_name("slSumAmount").clear()
+		page.driver.find_element_by_name("slSumAmount").send_keys(data['slSumAmount'])  # 世联评估总值
+		page.driver.find_element_by_name("slPrice").clear()
+		page.driver.find_element_by_name("slPrice").send_keys(data['slPrice'])  # 世联评估净值
+		page.driver.find_element_by_name("agentSumAmout").clear()
+		page.driver.find_element_by_name("agentSumAmout").send_keys(data['agentSumAmout'])  # 中介评估总值
+		page.driver.find_element_by_name("agentNetAmount").clear()
+		page.driver.find_element_by_name("agentNetAmount").send_keys(data['agentNetAmount'])  # 中介评估净值
+		page.driver.find_element_by_name("netSumAmount").clear()
+		page.driver.find_element_by_name("netSumAmount").send_keys(data['netSumAmount'])  # 网评总值
+		page.driver.find_element_by_name("netAmount").clear()
+		page.driver.find_element_by_name("netAmount").send_keys(data['netAmount'])  # 网评净值
+		page.driver.find_element_by_name("localSumAmount").clear()
+		page.driver.find_element_by_name("localSumAmount").send_keys(data['localSumAmount'])  # 当地评估总值
+		page.driver.find_element_by_name("localNetValue").clear()
+		page.driver.find_element_by_name("localNetValue").send_keys(data['localNetValue'])  # 当地评估净值
+		page.driver.find_element_by_name("remark").clear()
+		page.driver.find_element_by_name("remark").send_keys(data['remark'])  # 物业配套描述
+		page.driver.find_element_by_name("localAssessmentOrigin").clear()
+		page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])  # 当地评估来源
+		page.driver.find_element_by_name("assessmentOrigin").clear()
+		page.driver.find_element_by_name("assessmentOrigin").send_keys(data['assessmentOrigin'])  # 评估来源
+		page.driver.find_element_by_name("evaluationCaseDescrip").click()
+		page.driver.find_element_by_name("localAssessmentOrigin").clear()
+		page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])
+		
+		page.driver.find_element_by_name("evaluationCaseDescrip").clear()
+		page.driver.find_element_by_name("evaluationCaseDescrip").send_keys(data['evaluationCaseDescrip'])  # 评估情况描述
+		
+		if associated:
+			page.driver.find_element_by_link_text('关联').click()
+			time.sleep(1)
+			page.driver.find_element_by_id('evaRalationModal').click()
+			
+			# 搜索条件
+			page.driver.find_element_by_name('cityName').send_keys(u'长沙市')
+			page.driver.find_element_by_name('constructionName').send_keys(u'金帆小区')
+			page.driver.find_element_by_name('buildingName').send_keys('10')
+			page.driver.find_element_by_name('houseName').send_keys('101')
+			#查询
+			page.driver.find_element_by_xpath('//*[@id="admitsSearchForm"]/div[6]/button[1]').click()
+			
+			page.driver.find_element_by_xpath(
+				'//*[@id="evaRalationModal"]/div/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/table').click()
+			page.driver.find_element_by_id('evaRalationBtn').click()
+		
+		# 征信信息
+		page.driver.find_element_by_link_text("征信信息").click()
+		page.driver.find_element_by_name("loanIdNum").clear()
+		page.driver.find_element_by_name("loanIdNum").send_keys(applyCustCreditInfoVo['loanIdNum'])
+		page.driver.find_element_by_name("creditOverdueNum").clear()
+		page.driver.find_element_by_name("creditOverdueNum").send_keys(applyCustCreditInfoVo['creditOverdueNum'])
+		page.driver.find_element_by_name("queryLoanNum").clear()
+		page.driver.find_element_by_name("queryLoanNum").send_keys(applyCustCreditInfoVo['queryLoanNum'])
+		page.driver.find_element_by_name("loanOtherAmt").clear()
+		page.driver.find_element_by_name("loanOtherAmt").send_keys(applyCustCreditInfoVo['loanOtherAmt'])
+		
+		if productName == 'gqt':
+			page.driver.find_element_by_link_text("垫资情况").click()
+			# 基本情况
+			Select(page.driver.find_element_by_name("loaningType")).select_by_value("DA01")
+			page.driver.find_element_by_name('oldBankBranch').send_keys(u"南山科技园支行")
+			page.driver.find_element_by_name('oldBankPhone').send_keys('13801349321')
+			page.driver.find_element_by_name('oldBankManager').send_keys(u"朱小通")
+			page.driver.find_element_by_name('newBankBranch').send_keys(u'民治支行')
+			page.driver.find_element_by_name('newBankManager').send_keys(u'易健')
+			page.driver.find_element_by_name('newBankPhone').send_keys('13901234123')
+			# 贷款情况
+			page.driver.find_element_by_link_text('贷款情况').click()
+			page.driver.find_element_by_name('validDate').send_keys('2020-01-01')
+			page.driver.find_element_by_name('bankAppRemark').send_keys(u'无异常')
+			page.driver.find_element_by_name('checkAppCondition').send_keys(u'无异常')
+			page.driver.find_element_by_name('paymentAccount').send_keys('121334')
+			# 交易情况
+			page.driver.find_element_by_link_text('交易情况').click()
+			page.driver.find_element_by_name('tradeDate').send_keys('2018-01-01')
+			page.driver.find_element_by_name('tradeSumAmount').send_keys('1000000')
+			page.driver.find_element_by_name('deposit').send_keys('800000')
+			page.driver.find_element_by_name('fundSupervisionAmount').send_keys('800000')
+		
+		# 网查信息
+		page.driver.find_element_by_link_text(u"网查信息").click()
+		page.driver.find_element_by_class_name("remark").click()
+		p1 = page.driver.find_element_by_xpath("//*[@id='apply_module_check_data_form']/div/div/textarea")
+		p1.click()
+		p1.send_keys(u"哈哈哈哈哈，无异常")
+		
+		# 借款用途及回款来源
+		page.driver.find_element_by_link_text(u"借款用途及回款来源").click()
+		page.driver.find_element_by_id("apply_module_payment_source").send_keys(u"薪资回款")
+		p2 = page.driver.find_element_by_xpath("//*[@id=\"apply_module_remark\"]")
+		p2.click()
+		p2.send_keys(u"无异常")
+		
+		# 风控措施
+		page.driver.find_element_by_link_text(u"风控措施").click()
+		page.driver.find_element_by_name("riskRemark").click()
+		page.driver.find_element_by_name("riskRemark").send_keys(u"无异常")
+		# 保存
+		save(page)
+		return True
+	except EC.NoSuchElementException as e:
+		Log().error(e.msg)
+		return False
 
 
 # 申请件查询，获取applyCode

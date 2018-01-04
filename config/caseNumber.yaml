@@ -86,9 +86,10 @@ gqt:
  - test_gqt_16_finace_transact
  - test_gqt_17_finace_approve_branch_manager
  - test_gqt_18_finace_approve_risk_control_manager
- - test_gqt_19_finace_approve_financial_accounting
- - test_gqt_20_finace_approve_financial_manager
- - test_gqt_21_funds_raise
+ - test_gqt_19_funds_appprove
+ - test_gqt_20_finace_approve_financial_accounting
+ - test_gqt_21_finace_approve_financial_manager
+ - test_gqt_22_funds_raise
 IntoCase:
  - test_01_one_borrower
  - test_03_two_borrower

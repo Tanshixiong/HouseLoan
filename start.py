@@ -6,12 +6,13 @@ import sys
 import yaml
 # from HTMLTestRunner import HTMLTestRunner
 from HTMLTestRunnerCN import HTMLTestRunner
-
-from cases import test_gqt_input_data
-from cases import test_eyt_input_data
-from cases import test_xhd_input_data
-from cases import test_suite_cwd
-from cases.IntoCases import  test_into_case
+from cases.baseProcess import (
+	test_suite_cwd,
+	test_eyt_input_data,
+	test_xhd_input_data,
+	test_gqt_input_data
+	)
+from cases.IntoCases import test_into_case
 
 reload(sys)
 sys.setdefaultencoding('utf-8')

@@ -14,7 +14,6 @@ from common import common
 from common.login import Login
 from common.custom import getName, Log, enviroment_change
 
-
 class XHD(unittest.TestCase):
 	def _init_params(self):
 		self.cust_info = dict(

@@ -124,7 +124,7 @@ class GQT(unittest.TestCase):
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
-		                                   self.data['applyCustCreditInfoVo'][0], 'gqt')
+		                                   self.data['applyCustCreditInfoVo'][0], True, 'gqt')
 		
 		# 提交
 		common.submit(self.page)
@@ -456,7 +456,6 @@ class GQT(unittest.TestCase):
 			self.page.driver.quit()
 			return res
 	
-	
 	def test_gqt_19_funds_appprove(self):
 		'''资金主管审批'''
 		
@@ -482,7 +481,6 @@ class GQT(unittest.TestCase):
 			# 当前用户退出系统
 			self.page.driver.quit()
 			return res
-		
 	
 	def test_gqt_20_finace_approve_financial_accounting(self):
 		'''财务会计审批'''
@@ -525,7 +523,6 @@ class GQT(unittest.TestCase):
 			self.log.error("Error-财务经理审批出错！")
 			raise
 	
-	
 	def test_gqt_22_funds_raise(self):
 		'''资金主管募资审批'''
 		
@@ -540,8 +537,7 @@ class GQT(unittest.TestCase):
 		else:
 			self.log.error("Error-募资出错！")
 			raise
-		
-		
+
 
 if __name__ == '__main__':
 	unittest.main()

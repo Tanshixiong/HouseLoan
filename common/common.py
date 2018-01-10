@@ -13,7 +13,10 @@ from config.locator import loc_cust_info, loc_borrower
 from selenium.common import exceptions as EC
 from custom import getName, Log
 import datetime
+import sys
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 def browser(arg="chrome"):
 	'''
@@ -389,11 +392,11 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 			page.driver.find_element_by_name('houseName').send_keys('101')
 			#查询
 			page.driver.find_element_by_xpath('//*[@id="admitsSearchForm"]/div[6]/button[1]').click()
-			
+			time.sleep(1)
 			page.driver.find_element_by_xpath(
 				'//*[@id="evaRalationModal"]/div/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/table').click()
 			page.driver.find_element_by_id('evaRalationBtn').click()
-		
+			time.sleep(1)
 		# 征信信息
 		page.driver.find_element_by_link_text("征信信息").click()
 		page.driver.find_element_by_name("loanIdNum").clear()

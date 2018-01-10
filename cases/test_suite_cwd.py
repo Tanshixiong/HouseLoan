@@ -115,7 +115,7 @@ class CWD(unittest.TestCase):
 		# 3 物业信息
 		# log_to().info(u"物业基本信息录入")
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
-		                                   self.data['applyCustCreditInfoVo'][0])
+		                                   self.data['applyCustCreditInfoVo'][0], True)
 		
 		# 提交
 		common.submit(self.page)

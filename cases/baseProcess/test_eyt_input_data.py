@@ -318,8 +318,7 @@ class EYT(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 签约
-		common.make_signing(page, i_frame, self.cust_info['applyCode'], rec_bank_info)
-		# common.make_signing(self.page, i_frame, 'GZ20171207E15', rec_bank_info)
+		common.make_signing(page, self.cust_info['applyCode'], rec_bank_info)
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.cust_info['applyCode'])

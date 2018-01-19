@@ -12,7 +12,7 @@ sys.setdefaultencoding("utf-8")
 
 
 class CWD(unittest.TestCase):
-	'''车位贷用例'''
+	'''车位贷流程用例'''
 	
 	def setUp(self):
 		self.page = Login()
@@ -298,8 +298,7 @@ class CWD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 签约
-		common.make_signing(page, i_frame, self.applyCode, rec_bank_info)
-		# common.make_signing(self.page, i_frame, 'GZ20171207E15', rec_bank_info)
+		common.make_signing(page, self.applyCode, rec_bank_info)
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
@@ -332,7 +331,6 @@ class CWD(unittest.TestCase):
 	def test_cwd_14_authority_card_member_transact(self):
 		'''权证办理'''
 		
-		# print  u"申请编号:" + self.applyCode
 		# 合规审查
 		self.test_cwd_13_compliance_audit()
 		# 权证员登录

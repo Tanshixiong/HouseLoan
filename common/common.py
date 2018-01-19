@@ -18,6 +18,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+
 def browser(arg="chrome"):
 	'''
 		选择浏览器类型
@@ -142,9 +143,10 @@ def input_more_borrower(page):
 	page.driver.find_element_by_xpath('//*[@id="tb"]/a[1]/span[2]').click()
 	page.driver.find_element_by_xpath(
 			'//*[@id="datagrid-row-r1-2-1"]/td[5]/div/table/tbody/tr/td/input').send_keys(u"小黑")
+	time.sleep(1)
 	page.driver.find_element_by_xpath(
 			'//*[@id="datagrid-row-r1-2-1"]/td[6]/div/table/tbody/tr/td/input').send_keys("360101199101011054")
-	time.sleep(2)
+	time.sleep(1)
 	page.driver.find_element_by_id('_easyui_textbox_input14').click()
 	page.driver.find_element_by_id('_easyui_combobox_i8_2').click()
 	
@@ -154,8 +156,10 @@ def input_more_borrower(page):
 	page.driver.find_element_by_id('_easyui_textbox_input16').send_keys("xxxaaaa")
 	page.driver.find_element_by_xpath(
 			'//*[@id="datagrid-row-r1-2-1"]/td[11]/div/table/tbody/tr/td/input').send_keys("13912341923")
+	time.sleep(1)
 	page.driver.find_element_by_xpath(
 			'//*[@id="datagrid-row-r1-2-1"]/td[12]/div/table/tbody/tr/td/input').send_keys("yyyyyy")
+	time.sleep(1)
 	page.driver.find_element_by_id('_easyui_textbox_input17').click()
 	page.driver.find_element_by_id('_easyui_combobox_i10_3').click()
 	page.driver.find_element_by_id('_easyui_textbox_input18').click()
@@ -324,7 +328,7 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 		page.driver.find_element_by_name("propertyNo").send_keys(data['propertyNo'])  # 房产证号
 		
 		# Todo
-		time.sleep(3)
+		time.sleep(2)
 		page.driver.find_element_by_name("propertyStatus").click()  # 是否涉贷物业
 		
 		page.driver.find_element_by_name("propertyAge").click()
@@ -373,7 +377,6 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 		page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])  # 当地评估来源
 		page.driver.find_element_by_name("assessmentOrigin").clear()
 		page.driver.find_element_by_name("assessmentOrigin").send_keys(data['assessmentOrigin'])  # 评估来源
-		page.driver.find_element_by_name("evaluationCaseDescrip").click()
 		page.driver.find_element_by_name("localAssessmentOrigin").clear()
 		page.driver.find_element_by_name("localAssessmentOrigin").send_keys(data['localAssessmentOrigin'])
 		
@@ -390,11 +393,11 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 			page.driver.find_element_by_name('constructionName').send_keys(u'金帆小区')
 			page.driver.find_element_by_name('buildingName').send_keys('10')
 			page.driver.find_element_by_name('houseName').send_keys('101')
-			#查询
+			# 查询
 			page.driver.find_element_by_xpath('//*[@id="admitsSearchForm"]/div[6]/button[1]').click()
 			time.sleep(1)
 			page.driver.find_element_by_xpath(
-				'//*[@id="evaRalationModal"]/div/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/table').click()
+					'//*[@id="evaRalationModal"]/div/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/table').click()
 			page.driver.find_element_by_id('evaRalationBtn').click()
 			time.sleep(1)
 		# 征信信息
@@ -486,7 +489,7 @@ def get_applycode(page, condition):
 	
 	if t1:
 		# 获取申请编号
-		# print "applyCode:" + t1.text
+		Log().info("applyCode:" + t1.text)
 		return t1.text
 	else:
 		return False
@@ -616,12 +619,13 @@ def submit(page):
 
 
 # 审批审核
-def approval_to_review(page, condition, remark):
+def approval_to_review(page, condition, remark, action=0):
 	'''
 		审批审核
 	:param page:    页面对象
 	:param condition:   applyCode
 	:param remark:  审批审核意见
+	:param action   0 通过， 1 回退， 2 取消， 3 拒绝
 	:return:
 	'''
 	# 打开任务中心
@@ -656,12 +660,33 @@ def approval_to_review(page, condition, remark):
 		# 双击该笔案件
 		ActionChains(page.driver).double_click(t1).perform()
 		time.sleep(1)
-		# 填写批核意见
-		page.driver.find_element_by_class_name("container-fluid").click()
-		time.sleep(1)
-		page.driver.find_element_by_xpath("//*[@id=\"approve_opinion_form\"]/div[5]/div[2]").click()
-		# page.driver.find_element_by_xpath("//*[@id=\"remarkable\"]").send_keys(u"分公司主管同意审批")
-		page.driver.find_element_by_xpath("//*[@id=\"remarkable\"]").send_keys(remark)
+		
+		if action == 0:
+			# 填写批核意见
+			page.driver.find_element_by_class_name("container-fluid").click()
+			time.sleep(1)
+			page.driver.find_element_by_xpath("//*[@id=\"approve_opinion_form\"]/div[5]/div[2]").click()
+			page.driver.find_element_by_xpath("//*[@id=\"remarkable\"]").send_keys(remark)
+		elif action == 1:
+			# 回退
+			Select(page.driver.find_element_by_name("appResult")).select_by_visible_text(u"回退")
+			Select(page.driver.find_element_by_name("nextActivitiId")).select_by_visible_text(u"风控专员录入")
+			# 填写回退意见
+			page.driver.find_element_by_id('remarkable2').send_keys(remark)
+		elif action == 2:
+			# 取消
+			Select(page.driver.find_element_by_name("appResult")).select_by_visible_text(u"取消")
+			Select(page.driver.find_element_by_name("resultReasonId")).select_by_value("05")
+			# 填写意见
+			page.driver.find_element_by_id('remarkable2').send_keys(remark)
+		elif action == 3:
+			# 拒绝
+			Select(page.driver.find_element_by_name("appResult")).select_by_visible_text(u"拒绝")
+			Select(page.driver.find_element_by_name("resultReasonId")).select_by_value("06")
+			# 填写意见
+			page.driver.find_element_by_id('remarkable2').send_keys(remark)
+		else:
+			Log().error("输入的参数有误(0-3)!")
 		
 		# 保存
 		page.driver.find_element_by_xpath("//*[@id=\"apply_module_apply_save\"]/span/span/span[2]").click()
@@ -675,14 +700,72 @@ def approval_to_review(page, condition, remark):
 		return True
 
 
-def make_signing(page, frame, condition, rec_bank_info, rep_bank_info=None):
+# 风控审批回退
+def risk_approval_fallback(page, condition, option, remark):
+	'''
+		审批审核
+	:param page:    页面对象
+	:param condition:   applyCode
+	:param remark:  审批审核意见
+	:return:
+	'''
+	# 打开任务中心
+	page._click_control(page.driver, "id", "1DBCBC52791800014989140019301189")
+	time.sleep(2)
+	# 待处理任务
+	page.driver.find_element_by_name("/house/commonIndex/todoList").click()
+	time.sleep(2)
+	# 切换iframe 待处理任务
+	page.driver.switch_to.frame("bTabs_tab_house_commonIndex_todoList")
+	#  打开表单
+	time.sleep(1)
+	page.driver.find_element_by_id("frmQuery").click()
+	# 选定申请编号搜索框
+	page.driver.find_element_by_xpath("//*[@id='row-content']/div[1]/input").click()
+	# 输入申请编号
+	time.sleep(1)
+	page.driver.find_element_by_xpath("//*[@id='row-content']/div[1]/input").send_keys(condition)
+	# 点击查询按钮
+	page.driver.find_element_by_xpath("/html/body/div[1]/div[1]/div[2]/a[1]/span").click()
+	time.sleep(1)
+	t1 = page.driver.find_element_by_xpath("//*[@id='datagrid-row-r2-2-0']/td[3]")
+	time.sleep(2)
+	if not t1.text:
+		return False
+	else:
+		t1.click()
+		time.sleep(1)
+		page.driver.find_element_by_class_name("datagrid-btable").click()
+		# 双击该笔案件
+		ActionChains(page.driver).double_click(t1).perform()
+		time.sleep(1)
+		
+		# 回退
+		Select(page.driver.find_element_by_name("appResult")).select_by_visible_text(u"回退")
+		Select(page.driver.find_element_by_name("nextActivitiId")).select_by_visible_text(option)
+		# 填写回退意见
+		page.driver.find_element_by_id('remarkable2').send_keys(remark)
+		
+		# 保存
+		page.driver.find_element_by_xpath("//*[@id=\"apply_module_apply_save\"]/span/span/span[2]").click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath("/html/body/div[5]/div[3]/a/span/span").click()  # 关闭弹窗
+		
+		# 提交
+		page.driver.find_element_by_xpath("//*[@id='apply_module_apply_submit']/span/span/span[2]").click()
+		time.sleep(2)
+		page.driver.find_element_by_xpath("/html/body/div[5]/div[3]/a").click()
+		return True
+
+
+def make_signing(page, condition, rec_bank_info, number=1):
 	'''
 		合同打印
 	:param page:    页面对象
 	:param frame:   页面iframe
 	:param condition:   applyCode
 	:param rec_bank_info:   收款银行
-	:param rep_bank_info:   扣款银行
+	:param number：  签约人个数
 	:return:
 	'''
 	
@@ -711,50 +794,155 @@ def make_signing(page, frame, condition, rec_bank_info, rep_bank_info=None):
 		# ----------------------------------------------------------------------------------------
 		#                                 拆借人个人信息及收款银行信息录入
 		# ----------------------------------------------------------------------------------------
-		page.driver.find_element_by_class_name("signBaseAndInfo").click()
-		match_str = '//*[starts-with(@id, "signPersonForm")]/'
-		bank_str = '//*[starts-with(@id, "signBankFormperson")]/'
-		# 拆分金额
-		page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[4]/td[4]/input').send_keys('200000')
-		# 工作地点
-		page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[2]/td[8]/input').send_keys(
-				u'北京')
-		# 切换选定银行from
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[6]/input').send_keys(
-				rec_bank_info['recBankNum'])  # 收款银行账号
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[8]/input').send_keys(
-				rec_bank_info['recPhone'])  # 银行预留电话
 		
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[4]/input').send_keys(
-				rec_bank_info['recBankProvince'])  # 开户所在省
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[6]/input').send_keys(
-				rec_bank_info['recBankDistrict'])  # 开户行市县
-		
-		# ----------------------------------------------------------------------------------------
-		# 选择银行类别
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/button/span[1]').click()
-		time.sleep(1)
-		# 中国农业银行，默认写死了xpath，方法不推荐，先这样处理
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/div/ul/li[4]/a/span[1]').click()
-		
-		# ----------------------------------------------------------------------------------------
-		
-		# 考虑用以下方法，但未成功
-		# -----------------------------
-		# sl = Select(page.driver.find_element_by_class_name('dropdown-menu open'))
-		# s1 = page.driver.find_element_by_name('recBankNum1')
-		# Select(s1).select_by_index(1)
-		# Select(s1).select_by_value('0192')
-		
-		# Select(page.driver.find_element_by_name("recBankNum1")).select_by_visible_text(u'招商银行')
-		# -----------------------------
-		
-		# 分支银行
-		page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/input[3]').send_keys(
-				rec_bank_info['recBankBranch'])
-		
-		# 与收款银行一致
-		page.driver.find_element_by_xpath(bank_str + '/section[2]/div[1]/div/button').click()
+		if number == 1:
+			page.driver.find_element_by_class_name("signBaseAndInfo").click()
+			match_str = '//*[starts-with(@id, "signPersonForm")]/'
+			bank_str = '//*[starts-with(@id, "signBankFormperson")]/'
+			# 拆分金额
+			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[4]/td[4]/input').send_keys('200000')
+			# 工作地点
+			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[2]/td[8]/input').send_keys(
+					u'北京')
+			# 切换选定银行from
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[6]/input').send_keys(
+					rec_bank_info['recBankNum'])  # 收款银行账号
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[8]/input').send_keys(
+					rec_bank_info['recPhone'])  # 银行预留电话
+			
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[4]/input').send_keys(
+					rec_bank_info['recBankProvince'])  # 开户所在省
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[6]/input').send_keys(
+					rec_bank_info['recBankDistrict'])  # 开户行市县
+			
+			# ----------------------------------------------------------------------------------------
+			# 选择银行类别
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/button/span[1]').click()
+			time.sleep(1)
+			# 中国农业银行，默认写死了xpath，方法不推荐，先这样处理
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/div/ul/li[4]/a/span[1]').click()
+			
+			# ----------------------------------------------------------------------------------------
+			
+			# 考虑用以下方法，但未成功
+			# -----------------------------
+			# sl = Select(page.driver.find_element_by_class_name('dropdown-menu open'))
+			# s1 = page.driver.find_element_by_name('recBankNum1')
+			# Select(s1).select_by_index(1)
+			# Select(s1).select_by_value('0192')
+			
+			# Select(page.driver.find_element_by_name("recBankNum1")).select_by_visible_text(u'招商银行')
+			# -----------------------------
+			
+			# 分支银行
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/input[3]').send_keys(
+					rec_bank_info['recBankBranch'])
+			
+			# 与收款银行一致
+			page.driver.find_element_by_xpath(bank_str + '/section[2]/div[1]/div/button').click()
+			time.sleep(1)
+		elif number == 2:
+			page.driver.find_element_by_class_name("signBaseAndInfo").click()
+			match_str = '//*[starts-with(@id, "signPersonForm")]/'
+			bank_str = '//*[starts-with(@id, "signBankFormperson")]/'
+			# 拆分金额
+			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[4]/td[4]/input').send_keys('200000')
+			# 工作地点
+			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[2]/td[8]/input').send_keys(
+					u'北京')
+			# 切换选定银行from
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[6]/input').send_keys(
+					rec_bank_info['recBankNum'])  # 收款银行账号
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[8]/input').send_keys(
+					rec_bank_info['recPhone'])  # 银行预留电话
+			
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[4]/input').send_keys(
+					rec_bank_info['recBankProvince'])  # 开户所在省
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[6]/input').send_keys(
+					rec_bank_info['recBankDistrict'])  # 开户行市县
+			
+			# 选择银行类别
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/button/span[1]').click()
+			time.sleep(1)
+			# 中国农业银行，默认写死了xpath，方法不推荐，先这样处理
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/div/ul/li[4]/a/span[1]').click()
+			
+			# 分支银行
+			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/input[3]').send_keys(
+					rec_bank_info['recBankBranch'])
+			
+			# 与收款银行一致
+			page.driver.find_element_by_xpath(bank_str + '/section[2]/div[1]/div/button').click()
+			time.sleep(1)
+			# ----------------------------------------------------------------------------------------------------------
+			#                                       新增拆借人
+			# ----------------------------------------------------------------------------------------------------------
+			page.driver.find_element_by_link_text(u"拆借人信息").click()
+			
+			page.driver.find_element_by_id('addLoanApartPerson').click()
+			page.driver.find_element_by_id('apply_loanApart_info').click()
+			page.driver.find_element_by_id('loanApartPersonForm0').click()
+			# name
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[2]/input').send_keys(u"老王")
+			# phone
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[4]/input').send_keys("13512342341")
+			# ID
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[6]/input').send_keys("610124198703042140")
+			# age
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[8]/input').send_keys("30")
+			
+			Select(page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[2]/select')).select_by_visible_text(u'已婚')
+			
+			Select(page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[4]/select')).select_by_visible_text(u'本科')
+			
+			Select(page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[6]/select')).select_by_visible_text(u'建筑业')
+			# 工作地点
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[8]/input').send_keys(u"深圳")
+			# 公司规模
+			Select(page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[2]/select')).select_by_visible_text(
+					'100-300人')
+			# 工作职位
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[4]/input').send_keys(u"工程师")
+			# 入职日期
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[6]/input').send_keys("2017-08-21")
+			# 工作年限
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[8]/input').send_keys(10)
+			# 月均收入
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[2]/input').send_keys(100000)
+			# 拆借金额
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[4]/input').clear()
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[4]/input').send_keys('200000')
+			
+			# 收扣款银行信息录入
+			# page.driver.find_element_by_id('loanApartBankForm0').click()
+			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[2]/div[6]/input').send_keys(
+					"6217582600007330589")
+			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[2]/div[8]/input').send_keys(
+					'13891213212')
+			page.driver.find_element_by_xpath(
+					'//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[2]/input[3]').send_keys(u'深圳支行')
+			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[4]/input').send_keys(
+					u'湖南省')
+			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[6]/input').send_keys(
+					u'长沙市')
+			
+			# 扣款银行
+			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[2]/div[1]/div/button').click()
 		
 		# 保存
 		page.driver.switch_to.parent_frame()  # 切换到父iframe
@@ -1063,6 +1251,13 @@ def finace_approve(page, condition, remark):
 
 
 def funds_raise(page, condition, remark):
+	'''
+		募资
+	:param page:
+	:param condition:
+	:param remark:
+	:return:
+	'''
 	page._click_control(page.driver, "id", "1DBCBC52791800014989140019301189")
 	page.driver.find_element_by_name('/house/commonIndex/financial/toDoList').click()
 	page.driver.switch_to.frame('bTabs_tab_house_commonIndex_financial_toDoList')
@@ -1097,4 +1292,55 @@ def funds_raise(page, condition, remark):
 		return True
 	else:
 		logging.error(u'财务待处理任务中没有找到申请编号')
+		return False
+
+
+def reconsideration(page, applyCode, action=0):
+	'''
+		高级经理复议拒绝的单
+	:param page: 页面对象
+	:param applyCode: 申请code
+	:param action: 0 拒绝; 1 复议通过; 2 复议拒绝
+	:return:
+	'''
+	
+	page.driver.find_element_by_id('1DCDFBEA96010001A2941A801EA02310').click()
+	# 拒绝队列
+	page.driver.find_element_by_name("/house/commonIndex/refuseList").click()
+	# iframe
+	page.driver.switch_to_frame('bTabs_tab_house_commonIndex_refuseList')
+	page.driver.find_element_by_name('applyCode').send_keys(applyCode)
+	time.sleep(1)
+	page.driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a[1]').click()  # 查询
+	time.sleep(1)
+	if action == 0:
+		page.driver.find_element_by_id('frmQuery').click()
+		t1 = page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-0"]/td[13]/div')
+		if t1.text is None:
+			Log().info(t1.text)
+			return True
+		else:
+			return False
+	elif action == 1:
+		page.driver.find_element_by_id('frmQuery').click()
+		page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-0"]').click()
+		page.driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a[4]').click()
+		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a[1]').click()
+		return True
+	elif action == 2:
+		page.driver.find_element_by_id('frmQuery').click()
+		page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-0"]').click()
+		page.driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a[3]').click()
+		page.driver.find_element_by_xpath('/html/body/div[5]').click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath('/html/body/div[5]/div[2]/div[4]/input').send_keys(u"不通过！")
+		time.sleep(1)
+		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a[1]').click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a').click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath('/html/body/div[5]/div[3]/a').click()
+		return True
+	else:
+		Log().error("param wrong!")
 		return False

@@ -90,6 +90,17 @@ gqt:
  - test_gqt_20_finace_approve_financial_accounting
  - test_gqt_21_finace_approve_financial_manager
  - test_gqt_22_funds_raise
+
 IntoCase:
  - test_01_one_borrower
  - test_03_two_borrower
+ - test_gqt_04_applydata
+
+fallback:
+ - test_01_director_fallback
+ - test_02_manager_fallback
+ - test_02_branch_manager_reject
+
+contract:
+ - test_one_person_sign
+ - test_two_person_sign

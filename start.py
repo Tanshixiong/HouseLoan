@@ -12,7 +12,11 @@ from cases.baseProcess import (
 	test_xhd_input_data,
 	test_gqt_input_data
 	)
-from cases.IntoCases import test_into_case
+from cases.IntoCases import (
+	test_into_case,
+	test_fallback
+	)
+from cases.contract_sigining import test_more_person_sign
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -65,9 +69,16 @@ if __name__ == "__main__":
 		# 过桥通用例
 		for i in temp['gqt']:
 			suite.addTest(test_gqt_input_data.GQT(i))
+		# 进件场景
 		for i in temp['IntoCase']:
 			suite.addTest(test_into_case.IntoCase(i))
-	
+		# 回退场景
+		for i in temp['fallback']:
+			suite.addTest(test_fallback.fallback(i))
+		# 签约
+		for i in temp['contract']:
+			suite.addTest(test_more_person_sign.contractSign(i))
+
 	# 定义测试报告
 	runner = HTMLTestRunner(stream=fp, title='测试报告', description='用例执行情况:')
 	# import pdb

@@ -15,6 +15,7 @@ sys.setdefaultencoding("utf-8")
 
 
 class IntoCase(unittest.TestCase):
+	'''进件场景'''
 	def setUp(self):
 		try:
 			import config
@@ -199,7 +200,7 @@ class IntoCase(unittest.TestCase):
 		self.page.driver.quit()
 	
 	def test_gqt_04_applydata(self):
-		'''申请件录入,提交'''
+		'''过桥通申请件录入,提交'''
 		
 		data, _ = custom.enviroment_change("data_gqt.json", self.number, self.env)
 		
@@ -214,7 +215,7 @@ class IntoCase(unittest.TestCase):
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.evt['data']['applyPropertyInfoVo'][0],
-		                                   self.evt['data']['applyCustCreditInfoVo'][0], 'gqt')
+		                                   self.evt['data']['applyCustCreditInfoVo'][0], True, 'gqt')
 		
 		# 提交
 		common.submit(self.page)

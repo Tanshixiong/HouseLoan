@@ -12,7 +12,7 @@ from cases.baseProcess import (
 	test_xhd_input_data,
 	test_suite_cwd
 	)
-from cases.IntoCases import test_into_case
+from cases.IntoCases import test_into_case, test_fallback
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -44,9 +44,11 @@ if __name__ == "__main__":
 	# suite.addTest(test_eyt_input_data.EYT('test_eyt_01_base_info'))
 	# suite.addTest(test_xhd_input_data.XHD('test_xhd_21_funds_raise'))
 	
-	suite.addTest(test_suite_cwd.CWD('test_cwd_01_base_info'))
+	# suite.addTest(test_suite_cwd.CWD('test_cwd_01_base_info'))
 	
 	# suite.addTest(test_into_case.IntoCase('test_03_two_borrower'))
+	suite.addTest(test_fallback.fallback('test_02_branch_manager_reject'))
+	
 	runner = unittest.TextTestRunner()
 	
 	# 定义测试报告

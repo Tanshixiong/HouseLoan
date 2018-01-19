@@ -15,6 +15,7 @@ from common.login import Login
 from common.custom import getName, Log, enviroment_change
 
 class XHD(unittest.TestCase):
+	'''循环贷流程用例'''
 	def _init_params(self):
 		self.cust_info = dict(
 				_borrow_info=dict(
@@ -296,13 +297,12 @@ class XHD(unittest.TestCase):
 		page = Login(next_id)
 		
 		# 签约
-		rs = common.make_signing(page, i_frame, self.applyCode, rec_bank_info)
+		rs = common.make_signing(page, self.applyCode, rec_bank_info)
 		if not rs:
 			Log().error("签约失败")
 			raise
 		else:
 			Log().info("签约成功")
-		# common.make_signing(self.page, i_frame, 'GZ20171207E15', rec_bank_info)
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)

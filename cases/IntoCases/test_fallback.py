@@ -77,21 +77,21 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
-		
+			
 		'''
 			2. 风控回退
 		'''
 		# 下一个处理人重新登录
-		page = Login(result)
+		page = Login(self.next_user_id)
 		
 		# 分公司主管回退
 		res = common.approval_to_review(page, applyCode, u'回退到申请录入', 1)
@@ -100,9 +100,10 @@ class fallback(unittest.TestCase):
 			raise ValueError("回退失败")
 		
 		self.get_next_user(page, applyCode, u'分公司主管回退成功！')
-	
+		self.page.quit()
+		
 	def test_02_branch_manager_fallback(self):
-		'''经理回退到申请录入'''
+		'''分公司经理回退到申请录入'''
 		
 		'''
 			---------------------------------------------------------------------
@@ -129,12 +130,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -154,6 +155,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过!')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -164,7 +166,8 @@ class fallback(unittest.TestCase):
 			raise ValueError("回退失败")
 		
 		self.get_next_user(page, applyCode, u'分公司经理回退到申请录入！')
-	
+		self.page.driver.quit()
+		
 	def test_03_regional_fallback(self):
 		'''区域复核回退到申请录入'''
 		
@@ -191,13 +194,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -217,6 +220,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -228,6 +232,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -239,6 +244,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("回退失败")
 		
 		self.get_next_user(page, applyCode, u'区域回退到申请录入成功！')
+		self.page.driver.quit()
 	
 	def test_04_manage_fallback(self):
 		'''审批经理回退到申请录入'''
@@ -266,12 +272,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -291,6 +297,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -302,6 +309,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -313,6 +321,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -324,6 +333,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'审批经理回退到申请录入成功！')
+		self.page.driver.quit()
 	
 	def test_05_risk_fallback(self):
 		'''风控逐级回退'''
@@ -353,13 +363,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -377,6 +387,7 @@ class fallback(unittest.TestCase):
 			self.log.error("审批失败")
 			raise
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -386,6 +397,7 @@ class fallback(unittest.TestCase):
 			self.log.error("审批失败")
 			raise
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -395,6 +407,7 @@ class fallback(unittest.TestCase):
 			self.log.error("区域预复核审批失败！")
 			raise
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -404,6 +417,7 @@ class fallback(unittest.TestCase):
 			self.log.error("审批经理回退到区域预复核失败 ！")
 			raise
 		self.get_next_user(page, applyCode, u'审批经理回退到区域预复核成功！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -413,6 +427,7 @@ class fallback(unittest.TestCase):
 			self.log.error("区域预复核回退到分公司经理失败 ！")
 			raise
 		self.get_next_user(page, applyCode, u'区域预复核回退到分公司经理成功！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -422,6 +437,7 @@ class fallback(unittest.TestCase):
 			self.log.error("分公司经理回退到分公司主管失败 ！")
 			raise
 		self.get_next_user(page, applyCode, u'区分公司经理回退到分公司主管成功！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -431,6 +447,8 @@ class fallback(unittest.TestCase):
 			self.log.error("分公司主管回退到申请录入失败 ！")
 			raise
 		self.get_next_user(page, applyCode, u'分公司主管回退到申请录入成功！')
+		page.driver.quit()
+		
 	
 	def test_01_branch_director_cancel(self):
 		'''主管取消'''
@@ -464,6 +482,7 @@ class fallback(unittest.TestCase):
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -481,7 +500,8 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'主管取消！')
-	
+		page.driver.quit()
+		
 	def test_02_branch_manager_cancel(self):
 		'''分公司经理取消'''
 		
@@ -516,6 +536,7 @@ class fallback(unittest.TestCase):
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -535,6 +556,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过!')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -545,6 +567,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("分公司经理取消失败！")
 		
 		self.get_next_user(page, applyCode, u'分公司经理取消！')
+		page.driver.quit()
 	
 	def test_03_regional_cancel(self):
 		'''区域复核取消'''
@@ -572,13 +595,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -598,6 +621,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -609,6 +633,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -620,6 +645,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'区域取消成功！')
+		self.page.driver.quit()
 	
 	def test_04_manage_cancel(self):
 		'''审批经理取消'''
@@ -647,12 +673,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -672,6 +698,8 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
+		
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -683,6 +711,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -694,6 +723,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -705,6 +735,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'审审批经理取消成功！')
+		self.page.driver.quit()
 	
 	def test_01_branch_director_reject(self):
 		'''主管拒绝'''
@@ -732,12 +763,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -764,6 +795,7 @@ class fallback(unittest.TestCase):
 		value = common.reconsideration(page, applyCode)
 		if value:
 			self.log.info(u'主管拒绝成功，拒绝单已处于拒绝队列！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'主管拒绝失败，拒绝队列未找到该笔单！')
 			raise
@@ -794,12 +826,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -826,6 +858,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
 			self.log.info(u'主管拒绝成功，复议通过！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'主管拒绝失败，复议出错！')
 			raise
@@ -861,6 +894,7 @@ class fallback(unittest.TestCase):
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -887,6 +921,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
 			self.log.info(u'主管拒绝成功，复议不通过成功！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'主管拒绝失败，复议不通过出错！')
 			raise
@@ -919,12 +954,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -954,6 +989,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("分公司经理拒绝失败！")
 		
 		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -965,6 +1001,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("区域经理拒绝拒绝失败！")
 		
 		self.get_next_user(page, applyCode, u'区域经理拒绝！')
+		self.page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -973,6 +1010,7 @@ class fallback(unittest.TestCase):
 		value = common.reconsideration(page, applyCode)
 		if value:
 			self.log.info(u'分公司经理拒成功，拒绝单已处于拒绝队列！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'分公司经理拒绝失败，拒绝队列未找到该笔单！')
 			raise
@@ -1005,12 +1043,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1030,6 +1068,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过!')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1040,6 +1079,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("分公司经理拒绝失败！")
 		
 		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1051,6 +1091,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("区域经理拒绝拒绝失败！")
 		
 		self.get_next_user(page, applyCode, u'区域经理拒绝！')
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1059,6 +1100,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
 			self.log.info(u'分公司经理拒绝成功，复议通过！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'分公司经理拒绝失败，复议出错！')
 			raise
@@ -1094,6 +1136,7 @@ class fallback(unittest.TestCase):
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1112,7 +1155,9 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过!')
+		page.driver.quit()
 		
+		page = Login(self.next_user_id)
 		# 分公司经理拒绝
 		res = common.approval_to_review(page, applyCode, u'分公司经理拒绝', 3)
 		if not res:
@@ -1122,6 +1167,7 @@ class fallback(unittest.TestCase):
 			self.log.info(u'分公司经理拒绝！')
 		
 		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1133,6 +1179,7 @@ class fallback(unittest.TestCase):
 			raise ValueError("区域经理拒绝拒绝失败！")
 		
 		self.get_next_user(page, applyCode, u'区域经理拒绝！')
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1141,6 +1188,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
 			self.log.info(u'分公司经理拒绝成功，并复议不通过成功！')
+			page.driver.quit()
 		else:
 			self.log.error(u'分公司经理拒绝成功，但复议不通过出错！')
 			raise
@@ -1171,13 +1219,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1197,6 +1245,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1208,6 +1257,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1219,6 +1269,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("区域拒绝！")
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1227,6 +1278,7 @@ class fallback(unittest.TestCase):
 		value = common.reconsideration(page, applyCode)
 		if value:
 			self.log.info(u'区域拒绝成功，拒绝单已处于拒绝队列！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'区域失败，拒绝队列未找到该笔单！')
 			raise
@@ -1257,13 +1309,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1283,6 +1335,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1294,6 +1347,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1305,6 +1359,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("区域拒绝！")
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1313,6 +1368,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
 			self.log.info(u'区域拒绝成功！复议通过！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'区域拒绝失败，复议出错！')
 			raise
@@ -1343,13 +1399,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1369,6 +1425,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1380,6 +1437,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1391,7 +1449,8 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("区域拒绝！")
-		
+			page.driver.quit()
+			
 		# 高级审批经理登录
 		page = Login('xn003625')
 		
@@ -1399,6 +1458,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
 			self.log.info(u'区域拒绝成功，复议不通过成功！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'区域拒绝成功，复议不通过出错！')
 			raise
@@ -1429,13 +1489,13 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 			
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1455,6 +1515,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1466,6 +1527,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1477,6 +1539,7 @@ class fallback(unittest.TestCase):
 			raise
 			
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1488,6 +1551,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("审批经理拒绝！")
+			page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1496,6 +1560,7 @@ class fallback(unittest.TestCase):
 		value = common.reconsideration(page, applyCode)
 		if value:
 			self.log.info(u'审批经理拒绝成功，拒绝单已处于拒绝队列！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'审批经理拒绝失败，拒绝队列未找到该笔单！')
 			raise
@@ -1526,12 +1591,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1551,6 +1616,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1562,6 +1628,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1573,6 +1640,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1582,6 +1650,7 @@ class fallback(unittest.TestCase):
 		if not res:
 			self.log.error("审审批经理拒绝失败！")
 			raise
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1590,6 +1659,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
 			self.log.info(u'复议通过！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'复议出错！')
 			raise
@@ -1620,12 +1690,12 @@ class fallback(unittest.TestCase):
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
@@ -1645,6 +1715,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1656,6 +1727,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1667,6 +1739,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		page.driver.quit()
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1676,6 +1749,7 @@ class fallback(unittest.TestCase):
 		if not res:
 			self.log.error("审审批经理拒绝失败！")
 			raise
+		page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1684,6 +1758,7 @@ class fallback(unittest.TestCase):
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
 			self.log.info(u'复议不通过成功！')
+			self.page.driver.quit()
 		else:
 			self.log.error(u'复议不通过出错！')
 			raise

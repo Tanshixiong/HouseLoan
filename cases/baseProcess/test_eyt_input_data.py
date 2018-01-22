@@ -86,6 +86,7 @@ class EYT(unittest.TestCase):
 		self._init_params()
 		self.page = Login()
 		self.applyCode = ""
+		self.log = Log()
 		
 		try:
 			import config
@@ -154,58 +155,58 @@ class EYT(unittest.TestCase):
 		name = self.cust_info['_borrow_info']['custName']
 		applycode = common.get_applycode(self.page, name)
 		if applycode:
+			self.log.info("申请件查询完成")
 			self.cust_info['applyCode'] = applycode
 			self.applyCode = applycode
-			return applycode, True
 		else:
-			return None, False
+			self.log.error("can't get applyCode!")
 	
 	def test_eyt_06_show_task(self):
 		'''查看待处理任务列表'''
-		result = self.test_eyt_05_get_applyCode()[0]
-		res = common.query_task(self.page, result)
+		self.test_eyt_05_get_applyCode()
+		res = common.query_task(self.page, self.applyCode)
 		if res:
-			return True
+			self.log.info("待处理任务列表中存在该笔案件！")
 		else:
-			return False
+			self.log.info("待处理任务列表中不存在该笔案件！")
+			raise
 	
 	def test_eyt_07_process_monitor(self):
 		'''流程监控'''
-		result = self.test_eyt_05_get_applyCode()  # 申请件查询
-		res = common.process_monitor(self.page, result[0])  # l流程监控
+		self.test_eyt_05_get_applyCode()  # 申请件查询
+		res = common.process_monitor(self.page, self.applyCode)  # l流程监控
 		
 		if not res:
-			return False
+			raise ValueError("流程监控错误！")
 		else:
 			self.page.user_info['auth']["username"] = res  # 更新下一个登录人
 			print self.page.user_info['auth']["username"]
 			self.cust_info['next_user_id'] = res
-			return res, result[0]  # (下一个处理人ID, 申请件ID)
+			self.next_user_id = res
+			self.log.info("next deal User: " + self.next_user_id)
 	
 	def test_eyt_08_branch_supervisor_approval(self):
 		'''分公司主管审批'''
 		
 		# 获取分公司登录ID
-		res = self.test_eyt_07_process_monitor()
-		print "userId:" + res[0]
+		self.test_eyt_07_process_monitor()
 		
 		# 下一个处理人重新登录
-		page = Login(res[0])
+		page = Login(self.next_user_id)
 		
 		# 审批审核
-		common.approval_to_review(page, res[1], u'分公司主管同意审批')
+		common.approval_to_review(page, self.applyCode, u'分公司主管同意审批')
 		
 		# 查看下一步处理人
 		next_id = common.process_monitor(page, self.cust_info['applyCode'])
-		if not res:
-			return False
+		if not next_id:
+			raise
 		else:
-			# self.page.user_info['auth']["username"] = res  # 更新下一个登录人
-			# print self.page.user_info['auth']["username"]
 			self.cust_info['next_user_id'] = next_id
+			self.next_user_id = next_id
+			self.log.info("下一个处理人：" + self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return next_id  # 下一步处理人ID
 	
 	def test_quit_system(self):
 		'''退出系统'''
@@ -216,10 +217,10 @@ class EYT(unittest.TestCase):
 		'''分公司经理审批'''
 		
 		# 获取分公司经理登录ID
-		next_id = self.test_eyt_08_branch_supervisor_approval()
+		self.test_eyt_08_branch_supervisor_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 审批审核
 		common.approval_to_review(page, self.cust_info['applyCode'], u'分公司经理同意审批')
@@ -227,24 +228,25 @@ class EYT(unittest.TestCase):
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.cust_info['applyCode'])
 		if not res:
-			return False
+			raise
 		else:
 			self.cust_info['next_user_id'] = res
+			self.next_user_id = res
+			self.log.info("下一个处理人: " + self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_eyt_10_regional_prereview(self):
 		'''区域预复核审批'''
 		
 		# 获取区域预复核员ID
-		next_id = self.test_eyt_09_branch_manager_approval()
+		self.test_eyt_09_branch_manager_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 审批审核
-		res = common.approval_to_review(page, self.cust_info['applyCode'], u'区域预复核通过')
+		res = common.approval_to_review(page, self.applyCode, u'区域预复核通过')
 		if not res:
 			Log().error("区域预复核失败")
 			raise
@@ -261,29 +263,29 @@ class EYT(unittest.TestCase):
 			Log().info("next_user_id %s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_eyt_11_manager_approval(self):
-		'''审批经理审批'''
+		'''高级审批经理审批'''
 		
 		# 获取审批经理ID
-		next_id = self.test_eyt_10_regional_prereview()
+		self.test_eyt_10_regional_prereview()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 审批审核
-		common.approval_to_review(page, self.cust_info['applyCode'], u'审批经理审批')
+		common.approval_to_review(page, self.applyCode, u'高级审批经理审批')
 		
 		# 查看下一步处理人
-		res = common.process_monitor(page, self.cust_info['applyCode'])
+		res = common.process_monitor(page, self.applyCode)
 		if not res:
-			return False
+			raise
 		else:
 			self.cust_info['next_user_id'] = res
+			self.next_user_id = res
+			self.log.info("下一个处理人:" + res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_12_contract_signing(self):
 		'''签约'''
@@ -312,10 +314,10 @@ class EYT(unittest.TestCase):
 				)
 		
 		# 获取合同打印专员ID
-		next_id = self.test_eyt_11_manager_approval()
+		self.test_eyt_11_manager_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 签约
 		common.make_signing(page, self.cust_info['applyCode'], rec_bank_info)
@@ -323,22 +325,23 @@ class EYT(unittest.TestCase):
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.cust_info['applyCode'])
 		if not res:
-			return False
+			raise
 		else:
 			self.cust_info['next_user_id'] = res
+			self.next_user_id = res
+			self.log.info("下一个处理人: " + self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_13_compliance_audit(self):
 		'''合规审查'''
 		
 		# i_frame = 'bTabs_tab_house_commonIndex_todoList'
 		# 获取下一步合同登录ID
-		next_id = self.test_12_contract_signing()
+		self.test_12_contract_signing()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 合规审查
 		res = common.compliance_audit(page, self.cust_info['applyCode'])
@@ -346,6 +349,8 @@ class EYT(unittest.TestCase):
 			Log().info("合规审查通过")
 		else:
 			Log().error("合规审查失败")
+			raise
+		page.driver.quit()
 	
 	def test_eyt_14_authority_card_member_transact(self):
 		'''权证办理'''
@@ -371,20 +376,20 @@ class EYT(unittest.TestCase):
 			Log().info("下一步处理人：%s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_eyt_15_warrant_apply(self):
 		'''权证请款-原件请款'''
 		
 		# 获取合同打印专员ID
-		next_id = self.test_eyt_14_authority_card_member_transact()
-		page = Login(next_id)
+		self.test_eyt_14_authority_card_member_transact()
+		page = Login(self.next_user_id)
 		# 权证请款
 		res = common.warrant_apply(page, self.applyCode)
 		if res:
 			Log().info("权证请款成功")
 		else:
 			Log().error("权证请款失败")
+			raise
 	
 	def test_eyt_16_finace_transact(self):
 		'''财务办理'''
@@ -433,7 +438,6 @@ class EYT(unittest.TestCase):
 			raise
 		else:
 			self.next_user_id = res
-			print("nextId:" + res)
 			Log().info("下一步处理人: %s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
@@ -461,7 +465,6 @@ class EYT(unittest.TestCase):
 			raise
 		else:
 			self.next_user_id = res
-			print("nextId:" + self.next_user_id)
 			Log().info("下一步处理人:%s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
@@ -479,8 +482,6 @@ class EYT(unittest.TestCase):
 			raise
 		else:
 			Log().info("财务流程-财务会计审批完成")
-		# page = Login('xn037166')
-		# common.finace_approve(page, "CS20171215X09", remark)
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode, 1)
@@ -489,7 +490,6 @@ class EYT(unittest.TestCase):
 			raise
 		else:
 			self.next_user_id = res
-			print("nextId:" + self.next_user_id)
 			Log().info("nextId is %s", self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
@@ -504,8 +504,10 @@ class EYT(unittest.TestCase):
 		res = common.finace_approve(page, self.applyCode, remark)
 		if not res:
 			Log().error("财务流程-财务经理审批失败")
+			raise
 		else:
 			Log().info("财务流程-财务经理审批完成")
+			self.page.driver.quit()
 	
 	def test_eyt_21_funds_raise(self):
 		'''资金主管募资审批'''
@@ -520,6 +522,7 @@ class EYT(unittest.TestCase):
 			raise
 		else:
 			Log().info("募资-资金主管审批完成!")
+			self.page.driver.quit()
 
 
 if __name__ == '__main__':

@@ -287,3 +287,121 @@ class contractSign(unittest.TestCase):
 		# 查看下一步处理人
 		self.get_next_user(page, applyCode, u'合同打印完成！')
 	
+	
+	def test_03_three_person_sing(self):
+		'''三人签约'''
+		
+		# ---------------------------------------------------------------------------------
+		#                   1. 申请录入
+		# ---------------------------------------------------------------------------------
+		
+		self.data['applyVo']['applyAmount'] = 600000
+		# 1 客户信息-业务基本信息
+		if common.input_customer_base_info(self.page, self.data['applyVo']):
+			self.log.info("录入基本信息完成")
+		
+		# 2 客户基本信息 - 借款人/共贷人/担保人信息
+		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		
+		# 3 物业信息
+		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
+		                                   self.data['applyCustCreditInfoVo'][0])
+		# 提交
+		common.submit(self.page)
+		self.log.info("申请件录入完成提交")
+		
+		applyCode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		if applyCode:
+			self.applyCode = applyCode
+			self.log.info("申请件查询完成")
+			print("applyCode:" + self.applyCode)
+		# 流程监控
+		result = common.process_monitor(self.page, applyCode)
+		if result is not None:
+			self.next_user_id = result
+			self.log.info("完成流程监控查询")
+		else:
+			self.log.error("流程监控查询出错！")
+			raise
+		
+		# ---------------------------------------------------------------------------------------
+		# 	                        2. 风控审批流程
+		# ---------------------------------------------------------------------------------------
+		
+		# 下一个处理人重新登录
+		page = Login(result)
+		
+		# 分公司主管审批
+		res = common.approval_to_review(page, applyCode, u'分公司主管审批通过', 0)
+		if not res:
+			self.log.error("审批失败")
+			raise
+		
+		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 分公司经理审批
+		res = common.approval_to_review(page, applyCode, u'分公司经理审批通过', 0)
+		if not res:
+			self.log.error("审批失败")
+			raise
+		
+		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 区域预复核审批
+		res = common.approval_to_review(page, applyCode, u'区域预复核审批通过', 0)
+		if not res:
+			self.log.error("区域预复核审批失败！")
+			raise
+		
+		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 审批经理审批通过
+		res = common.approval_to_review(page, applyCode, u'审批经理审批通过', 0)
+		if not res:
+			self.log.error("审批经理审批失败！")
+			raise
+		
+		self.get_next_user(page, applyCode, u'审批经理审批成功！')
+		
+		# -----------------------------------------------------------------------------
+		# 	                        3. 合同打印
+		# -----------------------------------------------------------------------------
+		
+		rec_bank_info = dict(
+				recBankNum=self.data['houseCommonLoanInfoList'][0]['recBankNum'],
+				recPhone=self.data['houseCommonLoanInfoList'][0]['recPhone'],
+				recBankProvince=self.data['houseCommonLoanInfoList'][0]['recBankProvince'],
+				recBankDistrict=self.data['houseCommonLoanInfoList'][0]['recBankDistrict'],
+				recBank=self.data['houseCommonLoanInfoList'][0]['recBank'],
+				recBankBranch=self.data['houseCommonLoanInfoList'][0]['recBankBranch'],
+				)
+		
+		# 扣款银行信息
+		rep_bank_info = dict(
+				rep_name=u'习近平',
+				rep_id_num='420101198201013526',
+				rep_bank_code='6210302082441017886',
+				rep_phone='13686467482',
+				provice=u'湖南省',
+				district=u'长沙',
+				rep_bank_name=u'中国银行',
+				rep_bank_branch_name=u'北京支行',
+				)
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 两个人签约
+		common.make_signing(page, self.applyCode, rec_bank_info, 3)
+		
+		# 查看下一步处理人
+		self.get_next_user(page, applyCode, u'合同打印完成！')

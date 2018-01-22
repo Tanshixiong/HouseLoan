@@ -139,7 +139,6 @@ class GQT(unittest.TestCase):
 		if applycode:
 			self.log.info("申请件查询完成")
 			self.applyCode = applycode
-			print("applyCode:" + self.applyCode)
 			return applycode, True
 		else:
 			return None, False

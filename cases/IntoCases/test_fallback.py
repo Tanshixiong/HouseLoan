@@ -754,7 +754,7 @@ class fallback(unittest.TestCase):
 			self.log.error("主管拒绝失败")
 			raise
 		else:
-			self.log.info(u'主管拒绝！')
+			self.log.info(u'主管拒绝结束！')
 		page.driver.close()
 		
 		# 高级审批经理登录
@@ -763,9 +763,10 @@ class fallback(unittest.TestCase):
 		# 拒绝
 		value = common.reconsideration(page, applyCode)
 		if value:
-			self.log.info(u'拒绝单已处于拒绝队列！')
+			self.log.info(u'主管拒绝成功，拒绝单已处于拒绝队列！')
 		else:
-			self.log.error(u'拒绝队列未找到该笔单！')
+			self.log.error(u'主管拒绝失败，拒绝队列未找到该笔单！')
+			raise
 	
 	def test_01_branch_director_reject_pass(self):
 		'''主管拒绝,并复议通过'''
@@ -803,9 +804,9 @@ class fallback(unittest.TestCase):
 			self.log.error("流程监控查询出错！")
 			raise
 		
-		'''
-			2. 风控拒绝
-		'''
+		# --------------------------------------------------------------
+		#               2. 风控拒绝
+		# --------------------------------------------------------------
 		# 下一个处理人重新登录
 		page = Login(result)
 		
@@ -824,9 +825,10 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
-			self.log.info(u'复议通过！')
+			self.log.info(u'主管拒绝成功，复议通过！')
 		else:
-			self.log.error(u'复议出错！')
+			self.log.error(u'主管拒绝失败，复议出错！')
+			raise
 	
 	def test_01_branch_director_reject_fail(self):
 		'''主管拒绝,并复议不通过'''
@@ -864,7 +866,7 @@ class fallback(unittest.TestCase):
 			raise
 		
 		'''
-			2. 风控取消
+			2. 风控拒绝
 		'''
 		# 下一个处理人重新登录
 		page = Login(result)
@@ -884,9 +886,10 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
-			self.log.info(u'复议不通过成功！')
+			self.log.info(u'主管拒绝成功，复议不通过成功！')
 		else:
-			self.log.error(u'复议不通过出错！')
+			self.log.error(u'主管拒绝失败，复议不通过出错！')
+			raise
 	
 	def test_02_branch_manager_reject(self):
 		'''分公司经理拒绝'''
@@ -950,7 +953,18 @@ class fallback(unittest.TestCase):
 			self.log.error("分公司经理拒绝失败！")
 			raise ValueError("分公司经理拒绝失败！")
 		
-		# self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 区域经理拒绝
+		res = common.approval_to_review(page, applyCode, u'区域经理拒绝', 3)
+		if not res:
+			self.log.error("区域经理拒绝拒绝失败！")
+			raise ValueError("区域经理拒绝拒绝失败！")
+		
+		self.get_next_user(page, applyCode, u'区域经理拒绝！')
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -958,9 +972,9 @@ class fallback(unittest.TestCase):
 		# 拒绝
 		value = common.reconsideration(page, applyCode)
 		if value:
-			self.log.info(u'拒绝单已处于拒绝队列！')
+			self.log.info(u'分公司经理拒成功，拒绝单已处于拒绝队列！')
 		else:
-			self.log.error(u'拒绝队列未找到该笔单！')
+			self.log.error(u'分公司经理拒绝失败，拒绝队列未找到该笔单！')
 			raise
 	
 	def test_02_branch_manager_reject_pass(self):
@@ -1025,7 +1039,18 @@ class fallback(unittest.TestCase):
 			self.log.error("分公司经理拒绝失败！")
 			raise ValueError("分公司经理拒绝失败！")
 		
-		# self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 区域经理拒绝
+		res = common.approval_to_review(page, applyCode, u'区域经理拒绝', 3)
+		if not res:
+			self.log.error("区域经理拒绝拒绝失败！")
+			raise ValueError("区域经理拒绝拒绝失败！")
+		
+		self.get_next_user(page, applyCode, u'区域经理拒绝！')
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1033,9 +1058,9 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
-			self.log.info(u'复议通过！')
+			self.log.info(u'分公司经理拒绝成功，复议通过！')
 		else:
-			self.log.error(u'复议出错！')
+			self.log.error(u'分公司经理拒绝失败，复议出错！')
 			raise
 	
 	def test_02_branch_manager_reject_fail(self):
@@ -1079,14 +1104,35 @@ class fallback(unittest.TestCase):
 		# 下一个处理人重新登录
 		page = Login(result)
 		
-		# 分公司主管回退
-		res = common.approval_to_review(page, applyCode, u'主管拒绝', 3)
+		
+		# 分公司主管审批
+		res = common.approval_to_review(page, applyCode, u'分公司主管审批通过', 0)
 		if not res:
-			self.log.error("主管拒绝失败")
+			self.log.error("审批失败")
+			raise
+		
+		self.get_next_user(page, applyCode, u'分公司主管审批通过!')
+		
+		# 分公司经理拒绝
+		res = common.approval_to_review(page, applyCode, u'分公司经理拒绝', 3)
+		if not res:
+			self.log.error("分公司经理拒绝失败")
 			raise
 		else:
-			self.log.info(u'主管拒绝！')
-		page.driver.close()
+			self.log.info(u'分公司经理拒绝！')
+		
+		self.get_next_user(page, applyCode, u'分公司经理拒绝！')
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 区域经理拒绝
+		res = common.approval_to_review(page, applyCode, u'区域经理拒绝', 3)
+		if not res:
+			self.log.error("区域经理拒绝拒绝失败！")
+			raise ValueError("区域经理拒绝拒绝失败！")
+		
+		self.get_next_user(page, applyCode, u'区域经理拒绝！')
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1094,9 +1140,10 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
-			self.log.info(u'复议不通过成功！')
+			self.log.info(u'分公司经理拒绝成功，并复议不通过成功！')
 		else:
-			self.log.error(u'复议不通过出错！')
+			self.log.error(u'分公司经理拒绝成功，但复议不通过出错！')
+			raise
 	
 	def test_03_regional_reject(self):
 		'''区域复核拒绝'''
@@ -1165,11 +1212,13 @@ class fallback(unittest.TestCase):
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
 		
-		# 区域预复核取消
+		# 区域预复核拒绝
 		res = common.approval_to_review(page, applyCode, u'区域拒绝', 3)
 		if not res:
-			self.log.error("拒绝失败")
+			self.log.error("区域拒绝失败")
 			raise
+		else:
+			self.log.info("区域拒绝！")
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1177,9 +1226,9 @@ class fallback(unittest.TestCase):
 		# 拒绝
 		value = common.reconsideration(page, applyCode)
 		if value:
-			self.log.info(u'拒绝单已处于拒绝队列！')
+			self.log.info(u'区域拒绝成功，拒绝单已处于拒绝队列！')
 		else:
-			self.log.error(u'拒绝队列未找到该笔单！')
+			self.log.error(u'区域失败，拒绝队列未找到该笔单！')
 			raise
 	
 	def test_03_regional_reject_pass(self):
@@ -1252,8 +1301,10 @@ class fallback(unittest.TestCase):
 		# 区域预复核取消
 		res = common.approval_to_review(page, applyCode, u'区域拒绝', 3)
 		if not res:
-			self.log.error("拒绝失败")
+			self.log.error("区域拒绝失败")
 			raise
+		else:
+			self.log.info("区域拒绝！")
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1261,9 +1312,9 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 1)
 		if r1:
-			self.log.info(u'复议通过！')
+			self.log.info(u'区域拒绝成功！复议通过！')
 		else:
-			self.log.error(u'复议出错！')
+			self.log.error(u'区域拒绝失败，复议出错！')
 			raise
 	
 	def test_03_regional_reject_fail(self):
@@ -1336,8 +1387,10 @@ class fallback(unittest.TestCase):
 		# 区域预复核取消
 		res = common.approval_to_review(page, applyCode, u'区域拒绝', 3)
 		if not res:
-			self.log.error("拒绝失败")
+			self.log.error("区域拒绝失败")
 			raise
+		else:
+			self.log.info("区域拒绝！")
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1345,9 +1398,10 @@ class fallback(unittest.TestCase):
 		# 复议通过
 		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
-			self.log.info(u'复议不通过成功！')
+			self.log.info(u'区域拒绝成功，复议不通过成功！')
 		else:
-			self.log.error(u'复议不通过出错！')
+			self.log.error(u'区域拒绝成功，复议不通过出错！')
+			raise
 	
 	def test_04_manage_reject(self):
 		'''审批经理拒绝'''
@@ -1376,6 +1430,7 @@ class fallback(unittest.TestCase):
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
 			print("applyCode:" + self.applyCode)
+			
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
@@ -1385,11 +1440,11 @@ class fallback(unittest.TestCase):
 			self.log.error("流程监控查询出错！")
 			raise
 		
-		'''
-			------------------------------------------------------------
-								2. 风控审批回退
-			------------------------------------------------------------
-		'''
+		
+		# ------------------------------------------------------------
+								# 2. 风控审批拒绝
+		# ------------------------------------------------------------
+		
 		# 下一个处理人重新登录
 		page = Login(result)
 		
@@ -1420,17 +1475,19 @@ class fallback(unittest.TestCase):
 		if not res:
 			self.log.error("区域预复核审批失败！")
 			raise
-		
+			
 		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
 		
-		# 审批经理取消
-		res = common.approval_to_review(page, applyCode, u'审审批经理拒绝成功', 2)
+		# 审批经理拒绝
+		res = common.approval_to_review(page, applyCode, u'审批经理拒绝成功', 3)
 		if not res:
-			self.log.error("审审批经理拒绝失败！")
+			self.log.error("审批经理拒绝失败！")
 			raise
+		else:
+			self.log.info("审批经理拒绝！")
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1438,9 +1495,9 @@ class fallback(unittest.TestCase):
 		# 拒绝
 		value = common.reconsideration(page, applyCode)
 		if value:
-			self.log.info(u'拒绝单已处于拒绝队列！')
+			self.log.info(u'审批经理拒绝成功，拒绝单已处于拒绝队列！')
 		else:
-			self.log.error(u'拒绝队列未找到该笔单！')
+			self.log.error(u'审批经理拒绝失败，拒绝队列未找到该笔单！')
 			raise
 	
 	def test_04_manage_reject_pass(self):
@@ -1521,7 +1578,7 @@ class fallback(unittest.TestCase):
 		page = Login(self.next_user_id)
 		
 		# 审批经理取消
-		res = common.approval_to_review(page, applyCode, u'审审批经理拒绝成功', 2)
+		res = common.approval_to_review(page, applyCode, u'审审批经理拒绝成功', 3)
 		if not res:
 			self.log.error("审审批经理拒绝失败！")
 			raise
@@ -1575,7 +1632,7 @@ class fallback(unittest.TestCase):
 		
 		'''
 			------------------------------------------------------------
-								2. 风控审批回退
+								2. 风控审批拒绝
 			------------------------------------------------------------
 		'''
 		# 下一个处理人重新登录
@@ -1615,7 +1672,7 @@ class fallback(unittest.TestCase):
 		page = Login(self.next_user_id)
 		
 		# 审批经理取消
-		res = common.approval_to_review(page, applyCode, u'审审批经理拒绝成功', 2)
+		res = common.approval_to_review(page, applyCode, u'审审批经理拒绝成功', 3)
 		if not res:
 			self.log.error("审审批经理拒绝失败！")
 			raise
@@ -1624,9 +1681,9 @@ class fallback(unittest.TestCase):
 		page = Login('xn003625')
 		
 		# 复议通过
-		r1 = common.reconsideration(page, applyCode, 1)
+		r1 = common.reconsideration(page, applyCode, 2)
 		if r1:
-			self.log.info(u'复议通过！')
+			self.log.info(u'复议不通过成功！')
 		else:
-			self.log.error(u'复议出错！')
+			self.log.error(u'复议不通过出错！')
 			raise

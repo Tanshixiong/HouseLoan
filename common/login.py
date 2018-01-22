@@ -23,7 +23,7 @@ class Login(object):
 		登录页面
 	'''
 	
-	def __init__(self, username='xn018170', env="SIT"):
+	def __init__(self, username='xn002688', env="SIT"):
 		'''
 		
 		:param username: 登录用户名

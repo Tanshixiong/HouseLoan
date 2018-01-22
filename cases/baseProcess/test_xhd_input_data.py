@@ -14,8 +14,10 @@ from common import common
 from common.login import Login
 from common.custom import getName, Log, enviroment_change
 
+
 class XHD(unittest.TestCase):
 	'''循环贷流程用例'''
+	
 	def _init_params(self):
 		self.cust_info = dict(
 				_borrow_info=dict(
@@ -128,65 +130,66 @@ class XHD(unittest.TestCase):
 		name = self.cust_info['_borrow_info']['custName']
 		applycode = common.get_applycode(self.page, name)
 		if applycode:
+			self.log.info("申请件查询完成")
 			self.applyCode = applycode
-			return applycode, True
 		else:
-			return None, False
+			self.log.error("Can't get applyCode!")
+			raise
 	
 	def test_xhd_06_show_task(self):
 		'''查看待处理任务列表'''
-		result = self.test_xhd_05_get_applyCode()[0]
-		res = common.query_task(self.page, result)
+		self.test_xhd_05_get_applyCode()
+		res = common.query_task(self.page, self.applyCode)
 		if res:
-			return True
+			self.log.info("待处理任务查询ok")
 		else:
-			return False
+			self.log.info("待处理任务查询fail")
+			raise
 	
 	def test_xhd_07_process_monitor(self):
 		'''流程监控'''
 		
-		result = self.test_xhd_05_get_applyCode()  # 申请件查询
-		res = common.process_monitor(self.page, result[0])  # l流程监控
+		self.test_xhd_05_get_applyCode()  # 申请件查询
+		res = common.process_monitor(self.page, self.applyCode)  # l流程监控
 		
 		if not res:
-			return False
+			raise
 		else:
 			self.page.user_info['auth']["username"] = res  # 更新下一个登录人
-			print self.page.user_info['auth']["username"]
 			self.next_user_id = res
-			return res, result[0]  # (下一个处理人ID, 申请件ID)
+			self.log.info("Next Deal User: " + self.next_user_id)
 	
 	def test_xhd_08_branch_supervisor_approval(self):
 		'''分公司主管审批'''
 		
 		# 获取分公司登录ID
-		res = self.test_xhd_07_process_monitor()
-		print "userId:" + res[0]
+		self.test_xhd_07_process_monitor()
 		
 		# 下一个处理人重新登录
-		page = Login(res[0])
+		page = Login(self.next_user_id)
 		
 		# 审批审核
-		common.approval_to_review(page, res[1], u'分公司主管同意审批')
+		common.approval_to_review(page, self.applyCode, u'分公司主管同意审批')
 		
 		# 查看下一步处理人
 		next_id = common.process_monitor(page, self.applyCode)
-		if not res:
-			return False
+		if not next_id:
+			self.log.error("Can't Get Next User")
+			raise
 		else:
 			self.next_user_id = next_id
+			self.log.info("Next Deal User: " + self.next_user_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return next_id  # 下一步处理人ID
 	
 	def test_xhd_09_branch_manager_approval(self):
 		'''分公司经理审批'''
 		
 		# 获取分公司经理登录ID
-		next_id = self.test_xhd_08_branch_supervisor_approval()
+		self.test_xhd_08_branch_supervisor_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 审批审核
 		res = common.approval_to_review(page, self.applyCode, u'分公司经理同意审批')
@@ -206,16 +209,15 @@ class XHD(unittest.TestCase):
 			Log().info("next User Id is :%s", res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_10_regional_prereview(self):
 		'''区域预复核审批'''
 		
 		# 获取区域预复核员ID
-		next_id = self.test_xhd_09_branch_manager_approval()
+		self.test_xhd_09_branch_manager_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 审批审核
 		rs = common.approval_to_review(page, self.applyCode, u'区域预复核通过')
@@ -228,29 +230,30 @@ class XHD(unittest.TestCase):
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
 		if not res:
-			return False
-		else:
-			self.next_user_id = res
-			# 当前用户退出系统
-			self.page.driver.quit()
-			return res
-	
-	def test_xhd_11_manager_approval(self):
-		'''审批经理审批'''
-		
-		# 获取审批经理ID
-		next_id = self.test_xhd_10_regional_prereview()
-		
-		# 下一个处理人重新登录
-		page = Login(next_id)
-		
-		# 审批审核
-		result = common.approval_to_review(page, self.applyCode, u'审批经理审批')
-		if not result:
-			Log().error("风控-审批经理审批失败")
+			self.log.error("Can't Get next User")
 			raise
 		else:
-			Log().info("风控-审批经理审批完成")
+			self.next_user_id = res
+			self.log.info("Next deal User:" + self.next_user_id)
+			# 当前用户退出系统
+			self.page.driver.quit()
+	
+	def test_xhd_11_manager_approval(self):
+		'''高级审批经理审批'''
+		
+		# 获取审批经理ID
+		self.test_xhd_10_regional_prereview()
+		
+		# 下一个处理人重新登录
+		page = Login(self.next_user_id)
+		
+		# 审批审核
+		result = common.approval_to_review(page, self.applyCode, u'高级审批经理审批')
+		if not result:
+			Log().error("风控-高级审批经理审批失败")
+			raise
+		else:
+			Log().info("风控-高级审批经理审批完成")
 		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
@@ -262,12 +265,9 @@ class XHD(unittest.TestCase):
 			Log().info("next_user_id: %s", res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_12_contract_signing(self):
 		'''签约'''
-		
-		i_frame = 'bTabs_tab_house_commonIndex_todoList'
 		
 		rec_bank_info = dict(
 				recBankNum=self.data['houseCommonLoanInfoList'][0]['recBankNum'],
@@ -291,10 +291,10 @@ class XHD(unittest.TestCase):
 				)
 		
 		# 获取合同打印专员ID
-		next_id = self.test_xhd_11_manager_approval()
+		self.test_xhd_11_manager_approval()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 签约
 		rs = common.make_signing(page, self.applyCode, rec_bank_info)
@@ -307,21 +307,21 @@ class XHD(unittest.TestCase):
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode)
 		if not res:
-			return False
+			self.log.error("Can't Get Next User")
+			raise
 		else:
 			self.next_user_id = res
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_13_compliance_audit(self):
 		'''合规审查'''
 		
 		# 获取下一步合同登录ID
-		next_id = self.test_xhd_12_contract_signing()
+		self.test_xhd_12_contract_signing()
 		
 		# 下一个处理人重新登录
-		page = Login(next_id)
+		page = Login(self.next_user_id)
 		
 		# 合规审查
 		res = common.compliance_audit(page, self.applyCode)
@@ -330,6 +330,7 @@ class XHD(unittest.TestCase):
 			raise
 		else:
 			Log().info("合规审查成功")
+			self.page.driver.quit()
 	
 	def test_xhd_14_authority_card_member_transact(self):
 		'''权证办理'''
@@ -351,20 +352,19 @@ class XHD(unittest.TestCase):
 		res = common.process_monitor(page, self.applyCode)
 		if not res:
 			Log().error("Can't found The next UserId!")
-			return False
+			raise
 		else:
 			self.next_user_id = res
 			Log().info("Next UserId is :%s", res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_15_warrant_apply(self):
 		'''权证请款-原件请款'''
 		
 		# 获取合同打印专员ID
-		next_id = self.test_xhd_14_authority_card_member_transact()
-		page = Login(next_id)
+		self.test_xhd_14_authority_card_member_transact()
+		page = Login(self.next_user_id)
 		# 权证请款
 		res = common.warrant_apply(page, self.applyCode)
 		if not res:
@@ -387,9 +387,6 @@ class XHD(unittest.TestCase):
 		else:
 			Log().info("财务办理成功")
 		
-		# page = Login('xn052298')
-		# common.finace_transact(page, 'CS20171215C02')
-		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode, 1)
 		if not res:
@@ -400,7 +397,6 @@ class XHD(unittest.TestCase):
 			Log().info("Next user Id is: %s", res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_17_finace_approve_branch_manager(self):
 		'''财务分公司经理审批'''
@@ -412,10 +408,7 @@ class XHD(unittest.TestCase):
 		page = Login(self.next_user_id)
 		result = common.finace_approve(page, self.applyCode, remark)
 		if not result:
-			return False
-		
-		# page = Login('xn028154')
-		# common.finace_approve(page, "CS20171215X14", remark)
+			raise
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode, 1)
 		if not res:
@@ -442,8 +435,6 @@ class XHD(unittest.TestCase):
 		else:
 			Log().info("财务-风控经理审批完成")
 		
-		# page = Login('xn003625')
-		# common.finace_approve(page, "CS20171215X14", remark)
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode, 1)
 		if not res:
@@ -470,9 +461,6 @@ class XHD(unittest.TestCase):
 		else:
 			Log().info("财务-财务会计审批完成！")
 		
-		# page = Login('xn037166')
-		# common.finace_approve(page, "CS20171215X09", remark)
-		
 		# 查看下一步处理人
 		res = common.process_monitor(page, self.applyCode, 1)
 		if not res:
@@ -481,10 +469,9 @@ class XHD(unittest.TestCase):
 		else:
 			self.next_user_id = res
 			print("nextId:" + self.next_user_id)
-			Log().info("nextId :%s",res)
+			Log().info("nextId :%s", res)
 			# 当前用户退出系统
 			self.page.driver.quit()
-			return res
 	
 	def test_xhd_20_finace_approve_financial_manager(self):
 		'''财务经理审批'''
@@ -499,7 +486,7 @@ class XHD(unittest.TestCase):
 			raise
 		else:
 			Log().info("财务-财务经理审批完成！")
-			
+			self.page.driver.quit()
 	
 	def test_xhd_21_funds_raise(self):
 		'''资金主管募资审批'''
@@ -514,6 +501,7 @@ class XHD(unittest.TestCase):
 			raise
 		else:
 			Log().info("募资-资金主管审批完成！")
+			self.page.driver.quit()
 
 
 if __name__ == '__main__':

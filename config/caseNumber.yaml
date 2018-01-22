@@ -97,9 +97,29 @@ IntoCase:
  - test_gqt_04_applydata
 
 fallback:
- - test_01_director_fallback
- - test_02_manager_fallback
+ - test_01_branch_director_fallback
+ - test_02_branch_manager_fallback
+ - test_03_regional_fallback
+ - test_04_manage_fallback
+ - test_05_risk_fallback
+ - test_01_branch_director_cancel
+ - test_02_branch_manager_cancel
+ - test_03_regional_cancel
+ - test_04_manage_cancel
+ - test_01_branch_director_reject_pass
+ - test_01_branch_director_reject_fail
  - test_02_branch_manager_reject
+ - test_03_regional_reject
+ - test_04_manage_reject
+ - test_02_branch_manager_reject_pass
+ - test_02_branch_manager_reject_fail
+ - test_03_regional_reject
+ - test_03_regional_reject_pass
+ - test_03_regional_reject_fail
+ - test_04_manage_reject
+ - test_04_manage_reject_pass
+ - test_04_manage_reject_fail
+
 
 contract:
  - test_one_person_sign

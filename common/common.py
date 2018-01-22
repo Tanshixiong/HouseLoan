@@ -208,7 +208,7 @@ def input_bbi_Property_info(page):
 		page.driver.execute_script("window.scrollTo(1600, 0)")  # 页面滑动到顶部
 		page.driver.find_element_by_link_text(u"业务基本信息").click()
 	except EC.ElementNotVisibleException as e:
-		print e.msg
+		Log().error(e.msg)
 		raise e
 	
 	page.driver.find_element_by_name("propertyOwner").clear()
@@ -489,7 +489,7 @@ def get_applycode(page, condition):
 	
 	if t1:
 		# 获取申请编号
-		Log().info("applyCode:" + t1.text)
+		# Log().info("applyCode: " + t1.text)
 		return t1.text
 	else:
 		return False
@@ -580,11 +580,10 @@ def process_monitor(page, condition, stage=0):
 			for i in range(1, len(rcount)):
 				role = page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-%s"]/td[1]/div' % i).text
 				time.sleep(1)
-			print("下一个处理环节:" + role)  # 返回节点所有值
+			Log().info("下一个处理节点:" + role)  # 返回节点所有值
 			# 下一步处理人ID
 			next_user_id = page.driver.find_element_by_xpath(
 					'//*[@id="datagrid-row-r1-2-%s"]/td[4]/div' % (len(rcount) - 1)).text
-			print("next_user_id:" + next_user_id)
 		elif stage == 1:
 			page.driver.find_element_by_id('firstLoanA').click()
 			# page.driver.find_element_by_xpath('//*[@id="profile"]/div/div/div/div/div[2]').click()
@@ -594,7 +593,7 @@ def process_monitor(page, condition, stage=0):
 			for i in range(1, len(rcount)):
 				role = page.driver.find_element_by_xpath('//*[@id="datagrid-row-r4-2-%s"]/td[1]/div' % i).text
 				time.sleep(1)
-			print("下一个处理环节:" + role)  # 返回节点所有值
+			Log().info("下一个处理环节:" + role)  # 返回节点所有值
 			next_user_id = page.driver.find_element_by_xpath(
 					'//*[@id="datagrid-row-r4-2-%s"]/td[4]/div' % (len(rcount) - 1)).text
 		
@@ -1104,6 +1103,8 @@ def authority_card_transact(page, condition):
 		page.driver.find_element_by_id('warrant_submit').click()
 		time.sleep(1)
 		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath('/html/body/div[2]/div[3]/a').click()
 		return True
 	else:
 		return False
@@ -1316,7 +1317,7 @@ def reconsideration(page, applyCode, action=0):
 	if action == 0:
 		page.driver.find_element_by_id('frmQuery').click()
 		t1 = page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-0"]/td[13]/div')
-		if t1.text is None:
+		if t1.text != "":
 			Log().info(t1.text)
 			return True
 		else:

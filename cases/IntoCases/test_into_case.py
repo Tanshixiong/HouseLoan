@@ -29,7 +29,6 @@ class IntoCase(unittest.TestCase):
 			
 			filename = "data_cwd.json"
 			data, company = custom.enviroment_change(filename, self.number, self.env)
-			# self.page = Login.__init__(self)
 			self.page = Login()
 			self.log = Log()
 			
@@ -37,10 +36,6 @@ class IntoCase(unittest.TestCase):
 					data=data,
 					company=company
 					)
-		# 录入的源数据
-		# self.data = data
-		# # 分公司选择
-		# self.company = company
 		except Exception as e:
 			print('load config error:', str(e))
 			raise

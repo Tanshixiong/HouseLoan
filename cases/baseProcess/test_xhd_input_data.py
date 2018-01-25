@@ -114,7 +114,7 @@ class XHD(unittest.TestCase):
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
 		# log_to().info(u"借款人/共贷人信息录入")
-		common.input_customer_borrow_info(self.page, self.cust_info['_borrow_info'])
+		self.custName = common.input_customer_borrow_info(self.page, self.cust_info['_borrow_info'])[1]
 		
 		# 3 物业信息
 		# log_to().info(u"物业基本信息录入")
@@ -127,8 +127,7 @@ class XHD(unittest.TestCase):
 		'''申请件查询'''
 		
 		self.test_xhd_04_applydata()
-		name = self.cust_info['_borrow_info']['custName']
-		applycode = common.get_applycode(self.page, name)
+		applycode = common.get_applycode(self.page, self.custName)
 		if applycode:
 			self.log.info("申请件查询完成")
 			self.applyCode = applycode
@@ -139,7 +138,17 @@ class XHD(unittest.TestCase):
 	def test_xhd_06_show_task(self):
 		'''查看待处理任务列表'''
 		self.test_xhd_05_get_applyCode()
-		res = common.query_task(self.page, self.applyCode)
+		next_id = common.process_monitor(self.page, self.applyCode)
+		if next_id:
+			self.log.info("下一个处理人:"+ next_id)
+			self.next_user_id = next_id
+		else:
+			raise ValueError("没有找到下一个处理人！")
+		self.page.driver.quit()
+		
+		page = Login(self.next_user_id)
+		
+		res = common.query_task(page, self.applyCode)
 		if res:
 			self.log.info("待处理任务查询ok")
 		else:

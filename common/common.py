@@ -125,7 +125,7 @@ def input_customer_borrow_info(page, data):
 		page.driver.find_element_by_xpath('//*[@id="tb"]/a[3]/span[2]').click()
 		# 临时保存
 		save(page)
-		return True
+		return True, custName
 	except EC.NoSuchElementException as e:
 		Log().error(e)
 		return False
@@ -400,6 +400,7 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 					'//*[@id="evaRalationModal"]/div/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/table').click()
 			page.driver.find_element_by_id('evaRalationBtn').click()
 			time.sleep(1)
+		time.sleep(2)
 		# 征信信息
 		page.driver.find_element_by_link_text("征信信息").click()
 		page.driver.find_element_by_name("loanIdNum").clear()
@@ -461,7 +462,7 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 
 
 # 申请件查询，获取applyCode
-def get_applycode(page, condition):
+def get_applycode(page,condition):
 	'''
 		获取APPLYCODE
 	:param page:    页面对象
@@ -482,17 +483,19 @@ def get_applycode(page, condition):
 	page.driver.find_element_by_class_name("main-form-table").click()
 	time.sleep(2)
 	page.driver.find_element_by_xpath("//*[@id='row-content']/div[2]/input").click()
-	# 根据条件查询录入案件
+	# # 根据条件查询录入案件
 	page.driver.find_element_by_xpath("//*[@id='row-content']/div[2]/input").send_keys(unicode(condition))
 	page.driver.find_element_by_xpath("/html/body/div[1]/div/div[2]/a[1]").click()
+	time.sleep(1)
+	# 第一个申请编号
 	t1 = page.driver.find_element_by_xpath("//*[@id='datagrid-row-r2-2-0']/td[9]")
 	
 	if t1:
 		# 获取申请编号
-		# Log().info("applyCode: " + t1.text)
+		Log().info("applyCode: " + t1.text)
 		return t1.text
 	else:
-		return False
+		raise
 
 
 # 待处理任务查询
@@ -540,6 +543,8 @@ def process_monitor(page, condition, stage=0):
 	:param stage  0,1,2  对应风控、财务、募资
 	:return: 下一个处理人登录 ID
 	'''
+	
+	time.sleep(1)
 	page.driver.switch_to.default_content()
 	# 打开任务中心
 	page._click_control(page.driver, "id", "1DBCBC52791800014989140019301189")
@@ -555,7 +560,6 @@ def process_monitor(page, condition, stage=0):
 	time.sleep(1)
 	page.driver.find_element_by_xpath("//*[@id='applyCode']").click()
 	page.driver.find_element_by_xpath("//*[@id='applyCode']").send_keys(condition)
-	# page.driver.find_element_by_xpath("//*[@id='applyCode']").send_keys("CS20171215C20")
 	time.sleep(1)
 	# 点击查询
 	page.driver.find_element_by_xpath("/html/body/div[1]/div[1]/div[2]/a[1]/span").click()
@@ -686,6 +690,69 @@ def approval_to_review(page, condition, remark, action=0):
 			page.driver.find_element_by_id('remarkable2').send_keys(remark)
 		else:
 			Log().error("输入的参数有误(0-3)!")
+			raise
+		
+		# 保存
+		page.driver.find_element_by_xpath("//*[@id=\"apply_module_apply_save\"]/span/span/span[2]").click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath("/html/body/div[5]/div[3]/a/span/span").click()  # 关闭弹窗
+		
+		# 提交
+		page.driver.find_element_by_xpath("//*[@id='apply_module_apply_submit']/span/span/span[2]").click()
+		time.sleep(2)
+		page.driver.find_element_by_xpath("/html/body/div[5]/div[3]/a").click()
+		return True
+
+
+# 特批
+def special_approval(page, condition, remark):
+	'''
+		审批审核（特批）
+	:param page:    页面对象
+	:param condition:   applyCode
+	:param remark:  审批审核意见
+	:return:
+	'''
+	# 打开任务中心
+	page._click_control(page.driver, "id", "1DBCBC52791800014989140019301189")
+	time.sleep(2)
+	# 待处理任务
+	# page.driver.find_element_by_xpath("/html/body/header/ul/li[2]/ul/li[2]").click()
+	page.driver.find_element_by_name("/house/commonIndex/todoList").click()
+	time.sleep(2)
+	# 切换iframe 待处理任务
+	page.driver.switch_to.frame("bTabs_tab_house_commonIndex_todoList")
+	#  打开表单
+	time.sleep(1)
+	page.driver.find_element_by_id("frmQuery").click()
+	# 选定申请编号搜索框
+	page.driver.find_element_by_xpath("//*[@id='row-content']/div[1]/input").click()
+	# 输入申请编号
+	time.sleep(1)
+	page.driver.find_element_by_xpath("//*[@id='row-content']/div[1]/input").send_keys(condition)
+	# page.driver.find_element_by_xpath("//*[@id='row-content']/div[1]/input").send_keys("GZ20171116C05")
+	# 点击查询按钮
+	page.driver.find_element_by_xpath("/html/body/div[1]/div[1]/div[2]/a[1]/span").click()
+	time.sleep(1)
+	t1 = page.driver.find_element_by_xpath("//*[@id='datagrid-row-r2-2-0']/td[3]")
+	time.sleep(2)
+	if not t1.text:
+		return False
+	else:
+		t1.click()
+		time.sleep(1)
+		page.driver.find_element_by_class_name("datagrid-btable").click()
+		# 双击该笔案件
+		ActionChains(page.driver).double_click(t1).perform()
+		time.sleep(1)
+		# 特批
+		page.driver.find_element_by_xpath('//*[@id="approve_opinion_form"]/div[2]/div[5]/input').click()
+		
+		# 填写批核意见
+		page.driver.find_element_by_class_name("container-fluid").click()
+		time.sleep(1)
+		page.driver.find_element_by_xpath("//*[@id=\"approve_opinion_form\"]/div[5]/div[2]").click()
+		page.driver.find_element_by_xpath("//*[@id=\"remarkable\"]").send_keys(remark)
 		
 		# 保存
 		page.driver.find_element_by_xpath("//*[@id=\"apply_module_apply_save\"]/span/span/span[2]").click()
@@ -1318,7 +1385,7 @@ def reconsideration(page, applyCode, action=0):
 		page.driver.find_element_by_id('frmQuery').click()
 		t1 = page.driver.find_element_by_xpath('//*[@id="datagrid-row-r1-2-0"]/td[13]/div')
 		if t1.text != "":
-			Log().info(t1.text)
+			Log().info("拒绝案件:" + t1.text)
 			return True
 		else:
 			return False

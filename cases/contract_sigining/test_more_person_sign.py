@@ -62,7 +62,7 @@ class contractSign(unittest.TestCase):
 			self.log.info("录入基本信息完成")
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.custName = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
@@ -71,7 +71,7 @@ class contractSign(unittest.TestCase):
 		common.submit(self.page)
 		self.log.info("申请件录入完成提交")
 		
-		applyCode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		applyCode = common.get_applycode(self.page, self.custName)
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
@@ -182,7 +182,7 @@ class contractSign(unittest.TestCase):
 			self.log.info("录入基本信息完成")
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.custName = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
@@ -191,7 +191,7 @@ class contractSign(unittest.TestCase):
 		common.submit(self.page)
 		self.log.info("申请件录入完成提交")
 		
-		applyCode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		applyCode = common.get_applycode(self.page, self.custName)
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")
@@ -288,7 +288,7 @@ class contractSign(unittest.TestCase):
 		self.get_next_user(page, applyCode, u'合同打印完成！')
 	
 	
-	def test_03_three_person_sing(self):
+	def test_03_three_person_sign(self):
 		'''三人签约'''
 		
 		# ---------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ class contractSign(unittest.TestCase):
 			self.log.info("录入基本信息完成")
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.custName = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
@@ -310,7 +310,7 @@ class contractSign(unittest.TestCase):
 		common.submit(self.page)
 		self.log.info("申请件录入完成提交")
 		
-		applyCode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		applyCode = common.get_applycode(self.page, self.custName)
 		if applyCode:
 			self.applyCode = applyCode
 			self.log.info("申请件查询完成")

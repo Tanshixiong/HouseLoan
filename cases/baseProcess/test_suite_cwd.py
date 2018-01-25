@@ -80,7 +80,7 @@ class CWD(unittest.TestCase):
 		
 		self.test_cwd_01_base_info()
 		try:
-			res = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+			res = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 			if res:
 				self.log.info("录入借款人信息结束")
 		except Exception as e:
@@ -110,7 +110,7 @@ class CWD(unittest.TestCase):
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
 		# log_to().info(u"借款人/共贷人信息录入")
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.custName = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 		
 		# 3 物业信息
 		# log_to().info(u"物业基本信息录入")
@@ -125,7 +125,7 @@ class CWD(unittest.TestCase):
 		'''申请件查询'''
 		
 		self.test_cwd_04_applydata()
-		applycode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		applycode = common.get_applycode(self.page, self.custName)
 		
 		if applycode:
 			self.log.info("申请件查询完成")
@@ -137,7 +137,17 @@ class CWD(unittest.TestCase):
 		'''查看待处理任务列表'''
 		
 		self.test_cwd_05_get_applyCode()
-		res = common.query_task(self.page, self.applyCode)
+		next_id = common.process_monitor(self.page, self.applyCode)
+		if next_id:
+			self.log.info("下一个处理人:"+ next_id)
+			self.next_user_id = next_id
+		else:
+			raise ValueError("没有找到下一个处理人！")
+		self.page.driver.quit()
+		
+		page = Login(self.next_user_id)
+		
+		res = common.query_task(page, self.applyCode)
 		if res:
 			self.log.info("查询待处理任务成功")
 		else:

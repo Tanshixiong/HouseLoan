@@ -57,28 +57,52 @@ if __name__ == "__main__":
 	
 	with open("E:\HouseLoanAuto\config\caseNumber.yaml", 'r') as f:
 		temp = yaml.load(f)
-		# 车位贷用例
-		for i in temp['cwd']:
-			suite.addTest(test_suite_cwd.CWD(i))
-		# E押通用例
-		for i in temp['eyt']:
-			suite.addTest(test_eyt_input_data.EYT(i))
-		# 循环贷用例
-		for i in temp['xhd']:
-			suite.addTest(test_xhd_input_data.XHD(i))
-		# 过桥通用例
-		for i in temp['gqt']:
-			suite.addTest(test_gqt_input_data.GQT(i))
-		# 进件场景
-		for i in temp['IntoCase']:
-			suite.addTest(test_into_case.IntoCase(i))
-		# 回退场景
-		for i in temp['fallback']:
-			suite.addTest(test_fallback.fallback(i))
-		# 签约
-		for i in temp['contract']:
-			suite.addTest(test_more_person_sign.contractSign(i))
-
+		# # 车位贷用例
+		# for i in temp['cwd']:
+		# 	suite.addTest(test_suite_cwd.CWD(i))
+		# # E押通用例
+		# for i in temp['eyt']:
+		# 	suite.addTest(test_eyt_input_data.EYT(i))
+		# # 循环贷用例
+		# for i in temp['xhd']:
+		# 	suite.addTest(test_xhd_input_data.XHD(i))
+		# # 过桥通用例
+		# for i in temp['gqt']:
+		# 	suite.addTest(test_gqt_input_data.GQT(i))
+		# # 进件场景
+		# for i in temp['IntoCase']:
+		# 	suite.addTest(test_into_case.IntoCase(i))
+		# # 回退场景
+		# for i in temp['fallback']:
+		# 	suite.addTest(test_fallback.fallback(i))
+		# # 签约
+		# for i in temp['contract']:
+		# 	suite.addTest(test_more_person_sign.contractSign(i))
+		
+		suite_list = ['cwd', 'eyt', 'xhd', 'gqt', 'IntoCase', 'fallback', 'contract']
+		
+		def run_case(element, case):
+			if element is not None:
+				for i in temp[element]:
+					suite.addTest(case(i))
+		
+		
+		for e in suite_list:
+			if e == 'cwd':
+				run_case(e, test_suite_cwd.CWD)
+			elif e == 'eyt':
+				run_case(e, test_eyt_input_data.EYT)
+			elif e == 'xhd':
+				run_case(e, test_xhd_input_data.XHD)
+			elif e == 'gqt':
+				run_case(e, test_gqt_input_data.GQT)
+			elif e == 'IntoCase':
+				run_case(e,test_into_case.IntoCase)
+			elif e == 'fallback':
+				run_case(e,test_fallback.fallback)
+			elif e == 'contract':
+				run_case(e, test_more_person_sign.contractSign)
+	
 	# 定义测试报告
 	runner = HTMLTestRunner(stream=fp, title='测试报告', description='用例执行情况:')
 	# import pdb

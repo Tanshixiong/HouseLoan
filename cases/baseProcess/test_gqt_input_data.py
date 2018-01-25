@@ -120,7 +120,7 @@ class GQT(unittest.TestCase):
 		common.input_customer_base_info(self.page, self.data['applyVo'])
 		
 		# 2 客户基本信息 - 借款人/共贷人/担保人信息
-		common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])
+		self.custName = common.input_customer_borrow_info(self.page, self.data['custInfoVo'][0])[1]
 		
 		# 3 物业信息
 		common.input_cwd_bbi_Property_info(self.page, self.data['applyPropertyInfoVo'][0],
@@ -134,7 +134,7 @@ class GQT(unittest.TestCase):
 		'''申请件查询'''
 		
 		self.test_gqt_04_applydata()
-		applycode = common.get_applycode(self.page, self.data['custInfoVo'][0]['custName'])
+		applycode = common.get_applycode(self.page, self.custName)
 		
 		if applycode:
 			self.log.info("申请件查询完成")
@@ -147,7 +147,17 @@ class GQT(unittest.TestCase):
 		'''查看待处理任务列表'''
 		
 		result = self.test_gqt_05_get_applyCode()[0]
-		res = common.query_task(self.page, result)
+		next_id = common.process_monitor(self.page, self.applyCode)
+		if next_id:
+			self.log.info("下一个处理人:"+ next_id)
+			self.next_user_id = next_id
+		else:
+			raise ValueError("没有找到下一个处理人！")
+		self.page.driver.quit()
+		
+		page = Login(self.next_user_id)
+		
+		res = common.query_task(page, self.applyCode)
 		if res:
 			self.log.info("查询待处理任务成功")
 			return True

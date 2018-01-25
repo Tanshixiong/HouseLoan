@@ -1,4 +1,9 @@
 # coding:utf-8
+'''
+	Desc: 特批
+	Author: tsx
+	Date: 2018-1-24
+'''
 
 import unittest
 import time
@@ -9,22 +14,23 @@ from common.login import Login
 from common.custom import Log, enviroment_change
 
 
-class warrantManage(unittest.TestCase):
+class SPA(unittest.TestCase):
+	'''特批'''
 	def setUp(self):
+		self.log = Log()
 		try:
 			import config
 			rootdir = config.__path__[0]
 			config_env = os.path.join(rootdir, 'env.json')
-			print("config_env:" + config_env)
+			self.log.info("config_env:" + config_env)
 			with open(config_env, 'r') as f:
 				self.da = json.load(f)
 				self.number = self.da["number"]
 				self.env = self.da["enviroment"]
 			
-			filename = "data_cwd.json"
+			filename = "data_eyt.json"
 			data, company = enviroment_change(filename, self.number, self.env)
 			self.page = Login()
-			self.log = Log()
 			
 			# 录入的源数据
 			self.data = data
@@ -34,27 +40,27 @@ class warrantManage(unittest.TestCase):
 			self.log.error('load config error:', str(e))
 			raise
 	
-	def get_next_user(self, page, applyCode, remark):
+	def get_next_user(self, page, applyCode):
 		next_id = common.process_monitor(page, applyCode)
 		if next_id is None:
 			self.log.error("没有找到下一步处理人！")
 			raise
 		else:
 			self.next_user_id = next_id
-			self.log.info(remark)
 			self.log.info("下一步处理人:" + next_id)
 			# 当前用户退出系统
-			self.page.driver.quit()
+			page.driver.quit()
 	
 	def tearDown(self):
 		pass
 	
-	def test_warrantManage_original(self):
-		'''原件请款'''
-		
+	def test_01_region_special_approval(self):
+		'''区域李伟波特批'''
 		
 		'''
-			1. 申请录入
+			---------------------------------------------------------------------
+									1. 申请基本信息录入
+			---------------------------------------------------------------------
 		'''
 		# 1 客户信息-业务基本信息
 		if common.input_customer_base_info(self.page, self.data['applyVo']):
@@ -69,25 +75,31 @@ class warrantManage(unittest.TestCase):
 		# 提交
 		common.submit(self.page)
 		self.log.info("申请件录入完成提交")
-		
+		self.log.info("主借人:" + self.custName)
 		applyCode = common.get_applycode(self.page, self.custName)
+		
 		if applyCode:
 			self.applyCode = applyCode
-			self.log.info("申请件查询完成")
-			print("applyCode:" + self.applyCode)
+			self.log.info("申请件查询完成:" + self.applyCode)
+		else:
+			self.log.error("申请件查询失败！")
+			raise
+		
 		# 流程监控
 		result = common.process_monitor(self.page, applyCode)
 		if result is not None:
 			self.next_user_id = result
 			self.log.info("完成流程监控查询")
+			self.page.driver.quit()
 		else:
 			self.log.error("流程监控查询出错！")
 			raise
 		
 		'''
-			2. 风控审批流程
+			------------------------------------------------------------
+								2. 风控审批-区域特批
+			------------------------------------------------------------
 		'''
-		
 		# 下一个处理人重新登录
 		page = Login(result)
 		
@@ -96,44 +108,40 @@ class warrantManage(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		else:
+			self.log.info(u'分公司主管审批通过！')
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
 		
-		# 分公司经理审批
+		# 分公司经理审批通过
 		res = common.approval_to_review(page, applyCode, u'分公司经理回退到申请录入', 0)
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		else:
+			self.log.info(u'分公司经理审批通过！')
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
 		
-		# 区域预复核审批
-		res = common.approval_to_review(page, applyCode, u'区域预复核审批通过', 0)
+		# 区域特批
+		res = common.approval_to_review(page, applyCode, u'区域审批经理审批', 0)
 		if not res:
-			self.log.error("区域预复核审批失败！")
+			self.log.error("区域审批经理审批失败")
 			raise
+		else:
+			self.log.info(u'区域审批经理审批成功!')
+			self.get_next_user(page, applyCode)
 		
-		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
-		
-		# 下一个处理人重新登录
-		page = Login(self.next_user_id)
-		
-		# 审批经理审批通过
-		res = common.approval_to_review(page, applyCode, u'审批经理审批通过', 0)
-		if not res:
-			self.log.error("审批经理审批失败！")
-			raise
-		
-		self.get_next_user(page, applyCode, u'审批经理审批成功！')
-		
-		'''
-			3. 合同打印
-		'''
-		# 下一个处理人重新登录
-		page = Login(self.next_user_id)
+		if self.next_user_id != 'xn004754':
+			self.log.info("区域审批结束！")
+		else:
+			r = common.special_approval(page, self.applyCode, u'区域特批')
+			if not r:
+				self.log.error('区域特批出错！')
+				raise
+			else:
+				self.log.info('区域特批通过！')

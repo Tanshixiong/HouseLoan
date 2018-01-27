@@ -52,7 +52,7 @@ class SPA(unittest.TestCase):
 			page.driver.quit()
 	
 	def tearDown(self):
-		pass
+		self.page.driver.quit()
 	
 	def test_01_region_special_approval(self):
 		'''区域李伟波特批'''
@@ -145,3 +145,18 @@ class SPA(unittest.TestCase):
 				raise
 			else:
 				self.log.info('区域特批通过！')
+				page.driver.quit()
+	
+	def test_02_manage_special_approval(self):
+		'''高级经理特批'''
+		
+		self.test_01_region_special_approval()
+		
+		page = Login(self.next_user_id)
+		r = common.special_approval(page, self.applyCode, u'高级经理特批')
+		if not r:
+			self.log.error('高级经理特批出错！')
+			raise
+		else:
+			self.log.info('高级经理特批通过！')
+			page.driver.quit()

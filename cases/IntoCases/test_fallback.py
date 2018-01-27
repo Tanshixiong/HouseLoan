@@ -1308,7 +1308,8 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("高级经理拒绝拒绝成功！")
-		
+			page.driver.quit()
+			
 		# 高级审批经理登录
 		page = Login('xn003625')
 		
@@ -1397,7 +1398,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info("区域拒绝！")
-		self.get_next_user(self.page, self.applyCode)
+			self.get_next_user(page, self.applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -1408,6 +1409,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info(u'高级经理拒绝成功！')
+			page.driver.quit()
 		
 		
 		# 高级审批经理登录
@@ -1609,6 +1611,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info(u'高级经理拒绝成功！')
+			page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')
@@ -1810,7 +1813,7 @@ class fallback(unittest.TestCase):
 			raise
 		else:
 			self.log.info(u'高级经理拒绝成功！')
-		page.driver.quit()
+			page.driver.quit()
 		
 		# 高级审批经理登录
 		page = Login('xn003625')

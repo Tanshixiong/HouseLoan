@@ -11,6 +11,7 @@ from common.custom import Log, enviroment_change
 
 class contractSign(unittest.TestCase):
 	'''合同签约'''
+	
 	def setUp(self):
 		try:
 			import config
@@ -35,14 +36,13 @@ class contractSign(unittest.TestCase):
 			self.log.error('load config error:', str(e))
 			raise
 	
-	def get_next_user(self, page, applyCode, remark):
+	def get_next_user(self, page, applyCode):
 		next_id = common.process_monitor(page, applyCode)
 		if next_id is None:
 			self.log.error("没有找到下一步处理人！")
 			raise
 		else:
 			self.next_user_id = next_id
-			self.log.info(remark)
 			self.log.info("下一步处理人:" + next_id)
 			# 当前用户退出系统
 			self.page.driver.quit()
@@ -97,8 +97,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		else:
+			self.log.info("分公司主管审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -108,8 +109,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		else:
+			self.log.info("分公司经理审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -119,8 +121,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("区域预复核审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		else:
+			self.log.info("区域预复核审批通过")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -130,8 +133,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批经理审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'审批经理审批成功！')
+		else:
+			self.log.info("审批经理审批通过成功！")
+			self.get_next_user(page, applyCode)
 		
 		# -----------------------------------------------------------------------------
 		# 	                        3. 合同打印
@@ -165,9 +169,9 @@ class contractSign(unittest.TestCase):
 		
 		# 签约
 		common.make_signing(page, self.applyCode, rec_bank_info)
-		
+		self.log.info("签约完成")
 		# 查看下一步处理人
-		self.get_next_user(page, applyCode, u'合同打印完成！')
+		self.get_next_user(page, applyCode)
 	
 	def test_two_person_sign(self):
 		'''两人签约'''
@@ -217,8 +221,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		else:
+			self.log.info("分公司主管审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -228,8 +233,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		else:
+			self.log.info("分公司经理审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -239,8 +245,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("区域预复核审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		else:
+			self.log.info("区域经理审批通过")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -250,8 +257,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批经理审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'审批经理审批成功！')
+		else:
+			self.log.info("审批经理审批通过成功！")
+			self.get_next_user(page, applyCode)
 		
 		# -----------------------------------------------------------------------------
 		# 	                        3. 合同打印
@@ -283,10 +291,9 @@ class contractSign(unittest.TestCase):
 		
 		# 两个人签约
 		common.make_signing(page, self.applyCode, rec_bank_info, 2)
-		
+		self.log.info("合同打印完成！")
 		# 查看下一步处理人
-		self.get_next_user(page, applyCode, u'合同打印完成！')
-	
+		self.get_next_user(page, applyCode)
 	
 	def test_03_three_person_sign(self):
 		'''三人签约'''
@@ -336,8 +343,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司主管审批通过！')
+		else:
+			self.log.info("分公司主管审批通过")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -347,8 +355,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批失败")
 			raise
-		
-		self.get_next_user(page, applyCode, u'分公司经理审批通过！')
+		else:
+			self.log.info("分公司经理审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -358,8 +367,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("区域预复核审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'区域预复核审批通过！')
+		else:
+			self.log.info("区域经理审批通过！")
+			self.get_next_user(page, applyCode)
 		
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
@@ -369,8 +379,9 @@ class contractSign(unittest.TestCase):
 		if not res:
 			self.log.error("审批经理审批失败！")
 			raise
-		
-		self.get_next_user(page, applyCode, u'审批经理审批成功！')
+		else:
+			self.log.info("高级审批经理审批成功！")
+			self.get_next_user(page, applyCode)
 		
 		# -----------------------------------------------------------------------------
 		# 	                        3. 合同打印
@@ -402,6 +413,6 @@ class contractSign(unittest.TestCase):
 		
 		# 两个人签约
 		common.make_signing(page, self.applyCode, rec_bank_info, 3)
-		
+		self.log.info("合同打印完成")
 		# 查看下一步处理人
-		self.get_next_user(page, applyCode, u'合同打印完成！')
+		self.get_next_user(page, applyCode)

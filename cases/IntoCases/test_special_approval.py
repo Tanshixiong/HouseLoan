@@ -16,6 +16,7 @@ from common.custom import Log, enviroment_change
 
 class SPA(unittest.TestCase):
 	'''特批'''
+	
 	def setUp(self):
 		self.log = Log()
 		try:
@@ -127,17 +128,15 @@ class SPA(unittest.TestCase):
 		# 下一个处理人重新登录
 		page = Login(self.next_user_id)
 		
-		# 区域特批
-		res = common.approval_to_review(page, applyCode, u'区域审批经理审批', 0)
-		if not res:
-			self.log.error("区域审批经理审批失败")
-			raise
-		else:
-			self.log.info(u'区域审批经理审批成功!')
-			self.get_next_user(page, applyCode)
-		
 		if self.next_user_id != 'xn004754':
-			self.log.info("区域审批结束！")
+			# 区域特批
+			res = common.approval_to_review(page, applyCode, u'区域审批经理审批', 0)
+			if not res:
+				self.log.error("区域审批经理审批失败")
+				raise
+			else:
+				self.log.info(u'区域审批经理审批成功!')
+				self.get_next_user(page, applyCode)
 		else:
 			r = common.special_approval(page, self.applyCode, u'区域特批')
 			if not r:
@@ -159,4 +158,21 @@ class SPA(unittest.TestCase):
 			raise
 		else:
 			self.log.info('高级经理特批通过！')
+			self.get_next_user(page, self.applyCode)
+			page.driver.quit()
+	
+	def test_03_risk_director_special_approval(self):
+		'''区域特批，风控总监特批终审'''
+		
+		self.test_02_manage_special_approval()
+		
+		page = Login(self.next_user_id)
+		r = common.special_approval(page, self.applyCode, u'风控总监特批')
+		# r = common.approval_to_review(page, self.applyCode, u'区域审批经理审批', 0)
+		if not r:
+			self.log.error('风控总监特批出错！')
+			raise
+		else:
+			self.log.info('风控总监特批通过！')
+			self.get_next_user(page, self.applyCode)
 			page.driver.quit()

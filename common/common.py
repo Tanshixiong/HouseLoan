@@ -462,7 +462,7 @@ def input_cwd_bbi_Property_info(page, data, applyCustCreditInfoVo, associated=Fa
 
 
 # 申请件查询，获取applyCode
-def get_applycode(page,condition):
+def get_applycode(page, condition):
 	'''
 		获取APPLYCODE
 	:param page:    页面对象
@@ -861,7 +861,8 @@ def make_signing(page, condition, rec_bank_info, number=1):
 		#                                 拆借人个人信息及收款银行信息录入
 		# ----------------------------------------------------------------------------------------
 		
-		if number == 1:
+		# 主借人银行信息录入
+		def main_borrower(page):
 			page.driver.find_element_by_class_name("signBaseAndInfo").click()
 			match_str = '//*[starts-with(@id, "signPersonForm")]/'
 			bank_str = '//*[starts-with(@id, "signBankFormperson")]/'
@@ -907,39 +908,9 @@ def make_signing(page, condition, rec_bank_info, number=1):
 			# 与收款银行一致
 			page.driver.find_element_by_xpath(bank_str + '/section[2]/div[1]/div/button').click()
 			time.sleep(1)
-		elif number == 2:
-			page.driver.find_element_by_class_name("signBaseAndInfo").click()
-			match_str = '//*[starts-with(@id, "signPersonForm")]/'
-			bank_str = '//*[starts-with(@id, "signBankFormperson")]/'
-			# 拆分金额
-			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[4]/td[4]/input').send_keys('200000')
-			# 工作地点
-			page.driver.find_element_by_xpath(match_str + '/table/tbody/tr[2]/td[8]/input').send_keys(
-					u'北京')
-			# 切换选定银行from
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[6]/input').send_keys(
-					rec_bank_info['recBankNum'])  # 收款银行账号
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[2]/div[8]/input').send_keys(
-					rec_bank_info['recPhone'])  # 银行预留电话
-			
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[4]/input').send_keys(
-					rec_bank_info['recBankProvince'])  # 开户所在省
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[6]/input').send_keys(
-					rec_bank_info['recBankDistrict'])  # 开户行市县
-			
-			# 选择银行类别
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/button/span[1]').click()
-			time.sleep(1)
-			# 中国农业银行，默认写死了xpath，方法不推荐，先这样处理
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/div/div/ul/li[4]/a/span[1]').click()
-			
-			# 分支银行
-			page.driver.find_element_by_xpath(bank_str + '/section[1]/div[3]/div[2]/input[3]').send_keys(
-					rec_bank_info['recBankBranch'])
-			
-			# 与收款银行一致
-			page.driver.find_element_by_xpath(bank_str + '/section[2]/div[1]/div/button').click()
-			time.sleep(1)
+		
+		# 拆借人银行信息录入
+		def select_person(page, personform, bankform):
 			# ----------------------------------------------------------------------------------------------------------
 			#                                       新增拆借人
 			# ----------------------------------------------------------------------------------------------------------
@@ -949,67 +920,144 @@ def make_signing(page, condition, rec_bank_info, number=1):
 			page.driver.find_element_by_id('apply_loanApart_info').click()
 			page.driver.find_element_by_id('loanApartPersonForm0').click()
 			# name
+			
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[2]/input').send_keys(u"老王")
+					'//*[@id="' + str(personform) + '"]/table/tbody/tr[1]/td[2]/input').send_keys(u"老王")
 			# phone
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[4]/input').send_keys("13512342341")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[1]/td[4]/input').send_keys("13512342341")
 			# ID
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[6]/input').send_keys("610124198703042140")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[1]/td[6]/input').send_keys("610124198703042140")
 			# age
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[1]/td[8]/input').send_keys("30")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[1]/td[8]/input').send_keys("30")
 			
 			Select(page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[2]/select')).select_by_visible_text(u'已婚')
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[2]/td[2]/select')).select_by_visible_text(u'已婚')
 			
 			Select(page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[4]/select')).select_by_visible_text(u'本科')
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[2]/td[4]/select')).select_by_visible_text(u'本科')
 			
 			Select(page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[6]/select')).select_by_visible_text(u'建筑业')
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[2]/td[6]/select')).select_by_visible_text(u'建筑业')
 			# 工作地点
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[2]/td[8]/input').send_keys(u"深圳")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[2]/td[8]/input').send_keys(u"深圳")
 			# 公司规模
 			Select(page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[2]/select')).select_by_visible_text(
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[3]/td[2]/select')).select_by_visible_text(
 					'100-300人')
 			# 工作职位
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[4]/input').send_keys(u"工程师")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[3]/td[4]/input').send_keys(u"工程师")
 			# 入职日期
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[6]/input').send_keys("2017-08-21")
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[3]/td[6]/input').send_keys("2017-08-21")
 			# 工作年限
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[3]/td[8]/input').send_keys(10)
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[3]/td[8]/input').send_keys(10)
 			# 月均收入
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[2]/input').send_keys(100000)
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[4]/td[2]/input').send_keys(100000)
 			# 拆借金额
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[4]/input').clear()
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[4]/td[4]/input').clear()
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartPersonForm0"]/table/tbody/tr[4]/td[4]/input').send_keys('200000')
+					'//*[@id=' + str(personform) + ']/table/tbody/tr[4]/td[4]/input').send_keys('200000')
 			
 			# 收扣款银行信息录入
 			# page.driver.find_element_by_id('loanApartBankForm0').click()
-			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[2]/div[6]/input').send_keys(
+			page.driver.find_element_by_xpath('//*[@id=' + str(bankform) + ']/section[1]/div[2]/div[6]/input').send_keys(
 					"6217582600007330589")
-			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[2]/div[8]/input').send_keys(
+			page.driver.find_element_by_xpath('//*[@id=' + str(bankform) + ']/section[1]/div[2]/div[8]/input').send_keys(
 					'13891213212')
 			page.driver.find_element_by_xpath(
-					'//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[2]/input[3]').send_keys(u'深圳支行')
-			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[4]/input').send_keys(
+					'//*[@id=' + str(bankform) + ']/section[1]/div[3]/div[2]/input[3]').send_keys(u'深圳支行')
+			page.driver.find_element_by_xpath('//*[@id=' + str(bankform) + ']/section[1]/div[3]/div[4]/input').send_keys(
 					u'湖南省')
-			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[1]/div[3]/div[6]/input').send_keys(
+			page.driver.find_element_by_xpath('//*[@id=' + str(bankform) + ']/section[1]/div[3]/div[6]/input').send_keys(
 					u'长沙市')
 			
 			# 扣款银行
-			page.driver.find_element_by_xpath('//*[@id="loanApartBankForm0"]/section[2]/div[1]/div/button').click()
+			page.driver.find_element_by_xpath('//*[@id=' + str(bankform) + ']/section[2]/div[1]/div/button').click()
 		
+		if number == 1:
+			main_borrower(page)
+		elif number == 2:
+			main_borrower(page)
+			select_person(page, "loanApartPersonForm0", "loanApartBankForm0")
+		elif number == 3:
+			select_person(page, "loanApartPersonForm0", "loanApartPersonForm1")
+		
+		# page.driver.find_element_by_id('addLoanApartPerson').click()
+		# page.driver.find_element_by_id('apply_loanApart_info').click()
+		# page.driver.find_element_by_id('loanApartPersonForm1').click()
+		# # name
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[1]/td[2]/input').send_keys(u"小黑子")
+		# # phone
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[1]/td[4]/input').send_keys("13683219421")
+		# # ID
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[1]/td[6]/input').send_keys("610124198703042140")
+		# # age
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[1]/td[8]/input').send_keys("30")
+		#
+		# Select(page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[2]/td[2]/select')).select_by_visible_text(u'已婚')
+		#
+		# Select(page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[2]/td[4]/select')).select_by_visible_text(u'本科')
+		#
+		# Select(page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[2]/td[6]/select')).select_by_visible_text(u'建筑业')
+		# # 工作地点
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[2]/td[8]/input').send_keys(u"深圳")
+		# # 公司规模
+		# Select(page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[3]/td[2]/select')).select_by_visible_text(
+		# 		'100-300人')
+		# # 工作职位
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[3]/td[4]/input').send_keys(u"工程师")
+		# # 入职日期
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[3]/td[6]/input').send_keys("2017-08-21")
+		# # 工作年限
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[3]/td[8]/input').send_keys(10)
+		# # 月均收入
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[4]/td[2]/input').send_keys(100000)
+		# # 拆借金额
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[4]/td[4]/input').clear()
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/table/tbody/tr[4]/td[4]/input').send_keys('200000')
+		#
+		# # 收扣款银行信息录入
+		# # page.driver.find_element_by_id('loanApartBankForm0').click()
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/section[1]/div[2]/div[6]/input').send_keys(
+		# 		"6217582600007330589")
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/section[1]/div[2]/div[8]/input').send_keys(
+		# 		'13891213212')
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartBankForm1"]/section[1]/div[3]/div[2]/input[3]').send_keys(u'深圳支行')
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/section[1]/div[3]/div[4]/input').send_keys(
+		# 		u'湖南省')
+		# page.driver.find_element_by_xpath(
+		# 		'//*[@id="loanApartPersonForm1"]/section[1]/div[3]/div[6]/input').send_keys(
+		# 		u'长沙市')
+		#
+		# # 扣款银行
+		# page.driver.find_element_by_xpath('//*[@id="loanApartPersonForm1"]/section[2]/div[1]/div/button').click()
 		# 保存
 		page.driver.switch_to.parent_frame()  # 切换到父iframe
 		page.driver.find_element_by_xpath('//*[@id="contract_sign_save"]/span').click()

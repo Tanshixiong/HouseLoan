@@ -793,7 +793,7 @@ class fallback(unittest.TestCase):
 			self.log.error("主管拒绝失败")
 			raise
 		else:
-			self.log.info(u'主管拒绝结束！')
+			self.log.info('主管拒绝结束！')
 		page.driver.close()
 		
 		# 高级审批经理登录
